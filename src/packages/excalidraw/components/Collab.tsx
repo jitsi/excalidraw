@@ -415,6 +415,9 @@ class Collab extends PureComponent<CollabProps, CollabState> {
           transports: socketServerData.polling
             ? ["websocket", "polling"]
             : ["websocket"],
+          query: {
+            roomId,
+          },
         }),
         roomId,
         roomKey,
