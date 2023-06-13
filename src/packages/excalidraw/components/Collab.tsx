@@ -772,8 +772,8 @@ class Collab extends PureComponent<CollabProps, CollabState> {
     this.queueSaveToFirebase();
   };
 
-  queueBroadcastAllElements = throttle(() => {
-    this.portal.broadcastScene(
+  queueBroadcastAllElements = throttle(async () => {
+    await this.portal.broadcastScene(
       WS_SCENE_EVENT_TYPES.UPDATE,
       this.excalidrawAPI.getSceneElementsIncludingDeleted(),
       true,

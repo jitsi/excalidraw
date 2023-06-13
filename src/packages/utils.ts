@@ -193,6 +193,36 @@ export const exportToClipboard = async (
   }
 };
 
+export function splitArrayByByteSize(
+  arr: readonly ExcalidrawElement[],
+  maxSizeInBytes: number,
+) {
+  const encoder = new TextEncoder();
+  let currentSize = 0;
+  let subset = [];
+  const subsets = [];
+
+  for (let i = 0; i < arr.length; i++) {
+    const objString = JSON.stringify(arr[i]);
+    const byteSize = encoder.encode(objString).length;
+
+    if (currentSize + byteSize > maxSizeInBytes) {
+      subsets.push(subset);
+      subset = [];
+      currentSize = 0;
+    }
+
+    subset.push(arr[i]);
+    currentSize += byteSize;
+  }
+
+  if (subset.length > 0) {
+    subsets.push(subset);
+  }
+
+  return subsets;
+}
+
 export { serializeAsJSON, serializeLibraryAsJSON } from "../data/json";
 export {
   loadFromBlob,
