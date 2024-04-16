@@ -95,6 +95,7 @@ module.exports = {
     },
   },
   plugins: [
+    new webpack.EvalSourceMapDevToolPlugin({ exclude: /vendor/ }),
     ...(process.env.ANALYZER === "true" ? [new BundleAnalyzerPlugin()] : []),
     new webpack.DefinePlugin({
       "process.env": parseEnvVariables(

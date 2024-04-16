@@ -603,6 +603,7 @@ const LayerUI = ({
         disableHints={UIOptions.canvasActions.disableHints}
         disableLink={UIOptions.canvasActions.disableLink}
         disableShortcuts={UIOptions.canvasActions.disableShortcuts}
+        fontSizeOptions={UIOptions.canvasActions.fontSizeOptions}
         isCollaborating={isCollaborating}
         hideClearCanvas={UIOptions.canvasActions.hideClearCanvas}
         hideFontFamily={UIOptions.canvasActions.hideFontFamily}
