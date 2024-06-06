@@ -555,6 +555,7 @@ const ExcalidrawWrapper = (props: ExcalidrawAppProps) => {
           collabServerUrl={props.collabServerUrl}
           collabDetails={props.collabDetails}
           excalidrawAPI={excalidrawAPI}
+          roomFileInterface={props.roomFileInterface}
         />
       )}
       {errorMessage && (

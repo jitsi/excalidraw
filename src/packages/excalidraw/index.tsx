@@ -33,6 +33,8 @@ export {
   bumpVersion,
 } from "../../element/mutateElement";
 
+export { compressData, decompressData } from "../../data/encode";
+
 export {
   parseLibraryTokensFromUrl,
   useHandleLibrary,

@@ -12,6 +12,7 @@ import {
   Collaborator,
   CollabProps,
   Gesture,
+  RoomFileInterface,
   UserIdleState,
 } from "../../../types";
 import {
@@ -97,6 +98,23 @@ export interface CollabAPI {
   setUsername: (username: string) => void;
 }
 
+// Default implementation of RoomFileInterface
+const FIREBASE_ROOM_FILE_INTERFACE: RoomFileInterface = {
+  async getFiles(roomId, roomKey, fileIds) {
+    return loadFilesFromFirebase(`files/rooms/${roomId}`, roomKey, fileIds);
+  },
+  async saveFiles(roomId, roomKey, { addedFiles }) {
+    return saveFilesToFirebase({
+      prefix: `${FIREBASE_STORAGE_PREFIXES.collabFiles}/${roomId}`,
+      files: await encodeFilesForUpload({
+        files: addedFiles,
+        encryptionKey: roomKey,
+        maxBytes: FILE_UPLOAD_MAX_BYTES,
+      }),
+    });
+  },
+};
+
 class Collab extends PureComponent<CollabProps, CollabState> {
   portal: Portal;
   fileManager: FileManager;
@@ -125,22 +143,19 @@ class Collab extends PureComponent<CollabProps, CollabState> {
           throw new AbortError();
         }
 
-        return loadFilesFromFirebase(`files/rooms/${roomId}`, roomKey, fileIds);
+        return (
+          this.props.roomFileInterface ?? FIREBASE_ROOM_FILE_INTERFACE
+        ).getFiles(roomId, roomKey, fileIds);
       },
-      saveFiles: async ({ addedFiles }) => {
+      saveFiles: async (data) => {
         const { roomId, roomKey } = this.portal;
         if (!roomId || !roomKey) {
           throw new AbortError();
         }
 
-        return saveFilesToFirebase({
-          prefix: `${FIREBASE_STORAGE_PREFIXES.collabFiles}/${roomId}`,
-          files: await encodeFilesForUpload({
-            files: addedFiles,
-            encryptionKey: roomKey,
-            maxBytes: FILE_UPLOAD_MAX_BYTES,
-          }),
-        });
+        return (
+          this.props.roomFileInterface ?? FIREBASE_ROOM_FILE_INTERFACE
+        ).saveFiles(roomId, roomKey, data);
       },
     });
     this.excalidrawAPI = props.excalidrawAPI;

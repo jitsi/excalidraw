@@ -238,6 +238,27 @@ export type LibraryItemsSource =
   | Promise<LibraryItems_anyVersion | Blob>;
 // -----------------------------------------------------------------------------
 
+// Similar to FileManager constructor param, but with roomId/roomKey
+export interface RoomFileInterface {
+  getFiles(
+    roomId: string,
+    roomKey: string,
+    fileIds: FileId[],
+  ): Promise<{
+    loadedFiles: BinaryFileData[];
+    erroredFiles: Map<FileId, true>;
+  } | null>;
+
+  saveFiles: (
+    roomId: string,
+    roomKey: string,
+    data: { addedFiles: Map<FileId, BinaryFileData> },
+  ) => Promise<{
+    savedFiles: Map<FileId, true>;
+    erroredFiles: Map<FileId, true>;
+  } | null>;
+}
+
 // NOTE ready/readyPromise props are optional for host apps' sake (our own
 // implem guarantees existence)
 export type ExcalidrawAPIRefValue =
@@ -321,6 +342,7 @@ export interface CollabProps {
   collabDetails?: { roomId: string; roomKey: string };
   excalidrawAPI: ExcalidrawImperativeAPI;
   modalIsShown?: boolean;
+  roomFileInterface?: RoomFileInterface;
   useTestEnv?: boolean;
 }
 
@@ -330,6 +352,7 @@ export interface ExcalidrawAppProps {
   excalidraw: ExcalidrawProps;
   getExcalidrawAPI?: Function;
   getCollabAPI?: Function;
+  roomFileInterface?: RoomFileInterface;
 }
 
 export type SceneData = {
