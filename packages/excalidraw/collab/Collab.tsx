@@ -46,51 +46,54 @@ import type {
   SocketId,
   Collaborator,
   Gesture,
+  ExcalidrawCollabProps,
 } from "@excalidraw/excalidraw/types";
 import type { Mutable, ValueOf } from "@excalidraw/common/utility-types";
 
-import { appJotaiStore, atom } from "../app-jotai";
+import { appJotaiStore, atom } from "../../../excalidraw-app/app-jotai";
 import {
   CURSOR_SYNC_TIMEOUT,
   FILE_UPLOAD_MAX_BYTES,
-  FIREBASE_STORAGE_PREFIXES,
+  // FIREBASE_STORAGE_PREFIXES,
   INITIAL_SCENE_UPDATE_TIMEOUT,
   LOAD_IMAGES_TIMEOUT,
   WS_SUBTYPES,
   SYNC_FULL_SCENE_INTERVAL_MS,
   WS_EVENTS,
-} from "../app_constants";
+} from "../../../excalidraw-app/app_constants";
 import {
   generateCollaborationLinkData,
   getCollaborationLink,
   getSyncableElements,
-} from "../data";
+} from "../../../excalidraw-app/data";
 import {
   encodeFilesForUpload,
   FileManager,
   updateStaleImageStatuses,
-} from "../data/FileManager";
-import { LocalData } from "../data/LocalData";
-import {
-  isSavedToFirebase,
-  loadFilesFromFirebase,
-  loadFromFirebase,
-  saveFilesToFirebase,
-  saveToFirebase,
-} from "../data/firebase";
+} from "../../../excalidraw-app/data/FileManager";
+import { LocalData } from "../../../excalidraw-app/data/LocalData";
+// import {
+//   isSavedToFirebase,
+//   loadFilesFromFirebase,
+//   loadFromFirebase,
+//   saveFilesToFirebase,
+//   saveToFirebase,
+// } from "../../../excalidraw-app/data/firebase";
 import {
   importUsernameFromLocalStorage,
   saveUsernameToLocalStorage,
-} from "../data/localStorage";
-import { resetBrowserStateVersions } from "../data/tabSync";
+} from "../../../excalidraw-app/data/localStorage";
+import { resetBrowserStateVersions } from "../../../excalidraw-app/data/tabSync";
 
-import { collabErrorIndicatorAtom } from "./CollabError";
-import Portal from "./Portal";
+import { collabErrorIndicatorAtom } from "../../../excalidraw-app/collab/CollabError";
+import Portal from "../../../excalidraw-app/collab/Portal";
 
 import type {
   SocketUpdateDataSource,
   SyncableExcalidrawElement,
-} from "../data";
+} from "../../../excalidraw-app/data";
+
+let isUsingTestingEnv: any;
 
 export const collabAPIAtom = atom<CollabAPI | null>(null);
 export const isCollaboratingAtom = atom(false);
@@ -122,14 +125,14 @@ export interface CollabAPI {
   setCollabError: CollabInstance["setErrorDialog"];
 }
 
-interface CollabProps {
-  excalidrawAPI: ExcalidrawImperativeAPI;
-}
+// interface CollabProps {
+//   excalidrawAPI: ExcalidrawImperativeAPI;
+// }
 
-class Collab extends PureComponent<CollabProps, CollabState> {
+class Collab extends PureComponent<ExcalidrawCollabProps, CollabState> {
   portal: Portal;
   fileManager: FileManager;
-  excalidrawAPI: CollabProps["excalidrawAPI"];
+  excalidrawAPI: ExcalidrawCollabProps["excalidrawAPI"];
   activeIntervalId: number | null;
   idleTimeoutId: number | null;
 
@@ -137,7 +140,7 @@ class Collab extends PureComponent<CollabProps, CollabState> {
   private lastBroadcastedOrReceivedSceneVersion: number = -1;
   private collaborators = new Map<SocketId, Collaborator>();
 
-  constructor(props: CollabProps) {
+  constructor(props: ExcalidrawCollabProps) {
     super(props);
     this.state = {
       errorMessage: null,
@@ -145,58 +148,67 @@ class Collab extends PureComponent<CollabProps, CollabState> {
       username: importUsernameFromLocalStorage() || "",
       activeRoomLink: null,
     };
-    this.portal = new Portal(this);
+    this.portal = new Portal(this as any);
     this.fileManager = new FileManager({
       getFiles: async (fileIds) => {
-        const { roomId, roomKey } = this.portal;
-        if (!roomId || !roomKey) {
-          throw new AbortError();
-        }
-
-        return loadFilesFromFirebase(`files/rooms/${roomId}`, roomKey, fileIds);
+        // const { roomId, roomKey } = this.portal;
+        // if (!roomId || !roomKey) {
+        //   throw new AbortError();
+        // }
+        // return loadFilesFromFirebase(`files/rooms/${roomId}`, roomKey, fileIds);
+        return { loadedFiles: [], erroredFiles: new Map() };
       },
       saveFiles: async ({ addedFiles }) => {
-        const { roomId, roomKey } = this.portal;
-        if (!roomId || !roomKey) {
-          throw new AbortError();
+        // const { roomId, roomKey } = this.portal;
+        // if (!roomId || !roomKey) {
+        //   throw new AbortError();
+        // }
+        // const { savedFiles, erroredFiles } = await saveFilesToFirebase({
+        //   prefix: `${FIREBASE_STORAGE_PREFIXES.collabFiles}/${roomId}`,
+        //   files: await encodeFilesForUpload({
+        //     files: addedFiles,
+        //     encryptionKey: roomKey,
+        //     maxBytes: FILE_UPLOAD_MAX_BYTES,
+        //   }),
+        // });
+        // return {
+        //   savedFiles: savedFiles.reduce(
+        //     (acc: Map<FileId, BinaryFileData>, id) => {
+        //       const fileData = addedFiles.get(id);
+        //       if (fileData) {
+        //         acc.set(id, fileData);
+        //       }
+        //       return acc;
+        //     },
+        //     new Map(),
+        //   ),
+        //   erroredFiles: erroredFiles.reduce(
+        //     (acc: Map<FileId, BinaryFileData>, id) => {
+        //       const fileData = addedFiles.get(id);
+        //       if (fileData) {
+        //         acc.set(id, fileData);
+        //       }
+        //       return acc;
+        //     },
+        //     new Map(),
+        //   ),
+        // };
+        const savedFiles = new Map<FileId, BinaryFileData>();
+        const erroredFiles = new Map<FileId, BinaryFileData>();
+        for (const [fileId, fileData] of addedFiles.entries()) {
+          // Simulate all files are saved successfully
+          savedFiles.set(fileId, fileData);
         }
-
-        const { savedFiles, erroredFiles } = await saveFilesToFirebase({
-          prefix: `${FIREBASE_STORAGE_PREFIXES.collabFiles}/${roomId}`,
-          files: await encodeFilesForUpload({
-            files: addedFiles,
-            encryptionKey: roomKey,
-            maxBytes: FILE_UPLOAD_MAX_BYTES,
-          }),
-        });
-
-        return {
-          savedFiles: savedFiles.reduce(
-            (acc: Map<FileId, BinaryFileData>, id) => {
-              const fileData = addedFiles.get(id);
-              if (fileData) {
-                acc.set(id, fileData);
-              }
-              return acc;
-            },
-            new Map(),
-          ),
-          erroredFiles: erroredFiles.reduce(
-            (acc: Map<FileId, BinaryFileData>, id) => {
-              const fileData = addedFiles.get(id);
-              if (fileData) {
-                acc.set(id, fileData);
-              }
-              return acc;
-            },
-            new Map(),
-          ),
-        };
+        return { savedFiles, erroredFiles };
       },
     });
     this.excalidrawAPI = props.excalidrawAPI;
     this.activeIntervalId = null;
     this.idleTimeoutId = null;
+
+    isUsingTestingEnv = props.useTestEnv;
+    //HAVE TO PUT SOMETHING FOR STARTING COLLABORATION
+    props.collabDetails && this.startCollaboration(props.collabDetails);
   }
 
   private onUmmount: (() => void) | null = null;
@@ -238,7 +250,7 @@ class Collab extends PureComponent<CollabProps, CollabState> {
 
     appJotaiStore.set(collabAPIAtom, collabAPI);
 
-    if (isTestEnv() || isDevEnv()) {
+    if (this.props.useTestEnv) {
       window.collab = window.collab || ({} as Window["collab"]);
       Object.defineProperties(window, {
         collab: {
@@ -292,7 +304,8 @@ class Collab extends PureComponent<CollabProps, CollabState> {
     if (
       this.isCollaborating() &&
       (this.fileManager.shouldPreventUnload(syncableElements) ||
-        !isSavedToFirebase(this.portal, syncableElements))
+        // !isSavedToFirebase(this.portal, syncableElements)
+        false)
     ) {
       // this won't run in time if user decides to leave the site, but
       //  the purpose is to run in immediately after user decides to stay
@@ -312,12 +325,12 @@ class Collab extends PureComponent<CollabProps, CollabState> {
     syncableElements: readonly SyncableExcalidrawElement[],
   ) => {
     try {
-      const storedElements = await saveToFirebase(
-        this.portal,
-        syncableElements,
-        this.excalidrawAPI.getAppState(),
-      );
-
+      // const storedElements = await saveToFirebase(
+      //   this.portal,
+      //   syncableElements,
+      //   this.excalidrawAPI.getAppState(),
+      // );
+      const storedElements = syncableElements;
       if (!storedElements) {
         return;
       }
@@ -439,7 +452,7 @@ class Collab extends PureComponent<CollabProps, CollabState> {
             : element.status === "saved")
         );
       })
-      .map((element) => (element as InitializedExcalidrawImageElement).fileId);
+      .map((element) => (element as any).fileId);
 
     return await this.fileManager.getFiles(unfetchedImages);
   };
@@ -519,18 +532,26 @@ class Collab extends PureComponent<CollabProps, CollabState> {
     this.fallbackInitializationHandler = fallbackInitializationHandler;
 
     try {
+      const collabServerUrl =
+        this.props.collabServerUrl || import.meta.env.VITE_APP_WS_SERVER_URL;
+
+      if (!collabServerUrl) {
+        throw new Error("Collaboration server is not configured.");
+      }
       this.portal.socket = this.portal.open(
-        socketIOClient(import.meta.env.VITE_APP_WS_SERVER_URL, {
+        socketIOClient(collabServerUrl, {
           transports: ["websocket", "polling"],
         }),
         roomId,
         roomKey,
       );
-
       this.portal.socket.once("connect_error", fallbackInitializationHandler);
     } catch (error: any) {
+      console.error("Error connecting to CollabServerURL:");
       console.error(error);
       this.setErrorDialog(error.message);
+      this.setIsCollaborating(false);
+      LocalData.resumeSave("collaboration");
       return null;
     }
 
@@ -715,11 +736,12 @@ class Collab extends PureComponent<CollabProps, CollabState> {
       this.excalidrawAPI.resetScene();
 
       try {
-        const elements = await loadFromFirebase(
-          roomLinkData.roomId,
-          roomLinkData.roomKey,
-          this.portal.socket,
-        );
+        // const elements = await loadFromFirebase(
+        //   roomLinkData.roomId,
+        //   roomLinkData.roomKey,
+        //   this.portal.socket,
+        // );
+        const elements = null;
         if (elements) {
           this.setLastBroadcastedOrReceivedSceneVersion(
             getSceneVersion(elements),
@@ -766,14 +788,13 @@ class Collab extends PureComponent<CollabProps, CollabState> {
   };
 
   private loadImageFiles = throttle(async () => {
-    const response =
-      await this.fetchImageFilesFromFirebase({
-        elements: this.excalidrawAPI.getSceneElementsIncludingDeleted(),
-      });
+    const response = await this.fetchImageFilesFromFirebase({
+      elements: this.excalidrawAPI.getSceneElementsIncludingDeleted(),
+    });
 
-      if (!response) {
-        return;
-      }
+    if (!response) {
+      return;
+    }
 
     const { loadedFiles, erroredFiles } = response;
     this.excalidrawAPI.addFiles(loadedFiles);
@@ -1022,11 +1043,12 @@ class Collab extends PureComponent<CollabProps, CollabState> {
 
 declare global {
   interface Window {
+    // @ts-ignoreQ
     collab: InstanceType<typeof Collab>;
   }
 }
 
-if (isTestEnv() || isDevEnv()) {
+if (isUsingTestingEnv) {
   window.collab = window.collab || ({} as Window["collab"]);
 }
 

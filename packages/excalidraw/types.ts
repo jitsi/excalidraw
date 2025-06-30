@@ -622,6 +622,24 @@ export interface ExcalidrawProps {
   renderScrollbars?: boolean;
 }
 
+
+export interface ExcalidrawCollabProps {
+  collabServerUrl?: string;
+  collabDetails?: { roomId: string; roomKey: string };
+  excalidrawAPI: ExcalidrawImperativeAPI;
+  // modalIsShown?: boolean; not needed
+  useTestEnv?: boolean;
+}
+
+export interface ExcalidrawAppProps {
+  collabServerUrl?: string;
+  collabDetails?: { roomId: string; roomKey: string };
+  excalidraw: ExcalidrawProps;
+  getExcalidrawAPI?: Function;
+  getCollabAPI?: Function;
+}
+
+
 export type SceneData = {
   elements?: ImportedDataState["elements"];
   appState?: ImportedDataState["appState"];
