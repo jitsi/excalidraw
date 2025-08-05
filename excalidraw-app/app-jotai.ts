@@ -9,8 +9,11 @@ import {
   type PrimitiveAtom,
 } from "jotai";
 import { useLayoutEffect } from "react";
+import type { INTERNAL_PrdStore , INTERNAL_DevStoreRev4 } from "jotai/vanilla/store";
+import { P } from "vitest/dist/chunks/environment.d8YfPkTm";
+type PrdOrDevStore = INTERNAL_PrdStore | (INTERNAL_PrdStore & INTERNAL_DevStoreRev4);
 
-export const appJotaiStore : any = createStore();
+export const appJotaiStore : PrdOrDevStore = createStore();
 
 export { atom, Provider, useAtom, useAtomValue, useSetAtom };
 

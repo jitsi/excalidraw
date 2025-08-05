@@ -106,7 +106,7 @@ export class LocalData {
     ) => {
       saveDataStateToLocalStorage(elements, appState);
 
-      await LocalData.fileStorage.saveFiles({
+      await this.fileStorage.saveFiles({
         elements,
         files,
       });
@@ -123,27 +123,27 @@ export class LocalData {
     onFilesSaved: () => void,
   ) => {
     // we need to make the `isSavePaused` check synchronously (undebounced)
-    if (!LocalData.isSavePaused()) {
-      LocalData._save(elements, appState, files, onFilesSaved);
+    if (!this.isSavePaused()) {
+      this._save(elements, appState, files, onFilesSaved);
     }
   };
 
   static flushSave = () => {
-    LocalData._save.flush();
+    this._save.flush();
   };
 
   private static locker = new Locker<SavingLockTypes>();
 
   static pauseSave = (lockType: SavingLockTypes) => {
-    LocalData.locker.lock(lockType);
+    this.locker.lock(lockType);
   };
 
   static resumeSave = (lockType: SavingLockTypes) => {
-    LocalData.locker.unlock(lockType);
+    this.locker.unlock(lockType);
   };
 
   static isSavePaused = () => {
-    return document.hidden || LocalData.locker.isLocked();
+    return document.hidden || this.locker.isLocked();
   };
 
   // ---------------------------------------------------------------------------

@@ -399,11 +399,6 @@ const ExcalidrawWrapper = (props : ExcalidrawAppProps) => {
   }, [excalidrawAPI]);
 
   useEffect(() => {
-    if (!excalidrawAPI || (!isCollabDisabled && !collabAPI)) {
-      return;
-    }
-
-  useEffect(() => {
     if (excalidrawAPI && props.getExcalidrawAPI) {
       props.getExcalidrawAPI(excalidrawAPI);
     }
@@ -414,6 +409,12 @@ const ExcalidrawWrapper = (props : ExcalidrawAppProps) => {
       props.getCollabAPI(collabAPI);
     }
   }, [collabAPI, props]);
+  
+  useEffect(() => {
+    if (!excalidrawAPI || (!isCollabDisabled && !collabAPI)) {
+      return;
+    }
+
 
     const loadImages = (
       data: ResolutionType<typeof initializeScene>,
