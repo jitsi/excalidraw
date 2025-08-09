@@ -1,20 +1,20 @@
 {
-  "name": "@excalidraw/excalidraw",
-  "version": "0.18.0",
+  "name": "@jitsi/excalidraw",
+  "version": "0.0.20",
   "type": "module",
-  "types": "./dist/types/excalidraw/index.d.ts",
+  "types": "./dist/types/packages/excalidraw/index.d.ts",
   "main": "./dist/prod/index.js",
   "module": "./dist/prod/index.js",
   "exports": {
     "./*": {
-      "types": "./dist/types/excalidraw/*.d.ts"
+      "types": "./dist/types/packages/excalidraw/*.d.ts"
     },
     "./index.css": {
       "development": "./dist/dev/index.css",
       "production": "./dist/prod/index.css"
     },
     ".": {
-      "types": "./dist/types/excalidraw/index.d.ts",
+      "types": "./dist/types/packages/excalidraw/index.d.ts",
       "development": "./dist/dev/index.js",
       "production": "./dist/prod/index.js",
       "default": "./dist/prod/index.js"
@@ -89,7 +89,12 @@
     "pwacompat": "2.0.17",
     "roughjs": "4.6.4",
     "sass": "1.51.0",
-    "tunnel-rat": "0.1.2"
+    "tunnel-rat": "0.1.2",
+    "socket.io-client": "4.7.2",
+    "firebase": "11.3.1",
+    "idb-keyval": "6.0.3",
+    "@sentry/browser": "9.0.1",
+    "i18next-browser-languagedetector": "6.1.4"
   },
   "devDependencies": {
     "@size-limit/preset-big-lib": "9.0.0",

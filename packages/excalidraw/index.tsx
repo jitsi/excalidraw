@@ -298,3 +298,7 @@ export { getDataURL } from "./data/blob";
 export { isElementLink } from "./element/elementLink";
 
 export { setCustomTextMetricsProvider } from "./element/textMeasurements";
+
+export { Collab , ExcalidrawApp } from "./collab/index";
+
+export { generateCollaborationLinkData } from "../../excalidraw-app/data/index"
