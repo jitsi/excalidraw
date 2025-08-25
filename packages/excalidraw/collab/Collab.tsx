@@ -522,8 +522,11 @@ class Collab extends PureComponent<ExcalidrawCollabProps, CollabState> {
 
     try {
       this.portal.socket = this.portal.open(
-        socketIOClient(import.meta.env.VITE_APP_WS_SERVER_URL, {
+        socketIOClient(this.props.collabServerUrl || "", {
           transports: ["websocket", "polling"],
+          query: {
+            roomId,
+          },
         }),
         roomId,
         roomKey,
