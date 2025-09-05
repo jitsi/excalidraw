@@ -589,7 +589,6 @@ export interface ExcalidrawCollabProps {
   collabServerUrl?: string;
   collabDetails?: { roomId: string; roomKey: string };
   excalidrawAPI: ExcalidrawImperativeAPI;
-  // modalIsShown?: boolean; not needed
   useTestEnv?: boolean;
 }
 

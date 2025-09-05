@@ -91,7 +91,6 @@
     "sass": "1.51.0",
     "tunnel-rat": "0.1.2",
     "socket.io-client": "4.7.2",
-    "firebase": "11.3.1",
     "idb-keyval": "6.0.3",
     "@sentry/browser": "9.0.1",
     "i18next-browser-languagedetector": "6.1.4"
