@@ -3,7 +3,6 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { trackEvent } from "@excalidraw/excalidraw/analytics";
 import { getDefaultAppState } from "@excalidraw/excalidraw/appState";
 import { ErrorDialog } from "@excalidraw/excalidraw/components/ErrorDialog";
-import { TopErrorBoundary } from "../../../excalidraw-app/components/TopErrorBoundary";
 import {
   APP_NAME,
   EVENT,
@@ -1168,10 +1167,8 @@ const ExcalidrawWrapper = (props : ExcalidrawAppProps) => {
 export const ExcalidrawApp = (props : ExcalidrawAppProps) => {
 
   return (
-    <TopErrorBoundary>
       <Provider store={appJotaiStore}>
         <ExcalidrawWrapper {...props}/>
       </Provider>
-    </TopErrorBoundary>
   );
 };

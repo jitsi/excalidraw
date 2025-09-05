@@ -1,5 +1,4 @@
 import React from "react";
-import * as Sentry from "@sentry/browser";
 import { t } from "@excalidraw/excalidraw/i18n";
 import Trans from "@excalidraw/excalidraw/components/Trans";
 
@@ -32,17 +31,6 @@ export class TopErrorBoundary extends React.Component<
         _localStorage[key] = value;
       }
     }
-
-    Sentry.withScope((scope) => {
-      scope.setExtras(errorInfo);
-      const eventId = Sentry.captureException(error);
-
-      this.setState((state) => ({
-        hasError: true,
-        sentryEventId: eventId,
-        localStorage: JSON.stringify(_localStorage),
-      }));
-    });
   }
 
   private selectTextArea(event: React.MouseEvent<HTMLTextAreaElement>) {
@@ -50,26 +38,6 @@ export class TopErrorBoundary extends React.Component<
       event.preventDefault();
       (event.target as HTMLTextAreaElement).select();
     }
-  }
-
-  private async createGithubIssue() {
-    let body = "";
-    try {
-      const templateStrFn = (
-        await import(
-          /* webpackChunkName: "bug-issue-template" */ "../bug-issue-template"
-        )
-      ).default;
-      body = encodeURIComponent(templateStrFn(this.state.sentryEventId));
-    } catch (error: any) {
-      console.error(error);
-    }
-
-    window.open(
-      `https://github.com/excalidraw/excalidraw/issues/new?body=${body}`,
-      "_blank",
-      "noopener noreferrer",
-    );
   }
 
   private errorSplash() {
@@ -114,19 +82,6 @@ export class TopErrorBoundary extends React.Component<
             </div>
           </div>
           <div>
-            <div className="ErrorSplash-paragraph">
-              {t("errorSplash.trackedToSentry", {
-                eventId: this.state.sentryEventId,
-              })}
-            </div>
-            <div className="ErrorSplash-paragraph">
-              <Trans
-                i18nKey="errorSplash.openIssueMessage"
-                button={(el) => (
-                  <button onClick={() => this.createGithubIssue()}>{el}</button>
-                )}
-              />
-            </div>
             <div className="ErrorSplash-paragraph">
               <div className="ErrorSplash-details">
                 <label>{t("errorSplash.sceneContent")}</label>
