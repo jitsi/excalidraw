@@ -271,11 +271,13 @@ export const ShapesSwitcher = ({
   appState,
   app,
   UIOptions,
+  allowedShapes
 }: {
   activeTool: UIAppState["activeTool"];
   appState: UIAppState;
   app: AppClassProperties;
   UIOptions: AppProps["UIOptions"];
+  allowedShapes: Array<string>;
 }) => {
   const [isExtraToolsMenuOpen, setIsExtraToolsMenuOpen] = useState(false);
 
@@ -287,7 +289,9 @@ export const ShapesSwitcher = ({
 
   return (
     <>
-      {SHAPES.map(({ value, icon, key, numericKey, fillable }, index) => {
+      {SHAPES.filter(
+      (shape) => allowedShapes.includes(shape.value),
+    ).map(({ value, icon, key, numericKey, fillable }, index) => {
         if (
           UIOptions.tools?.[
             value as Extract<typeof value, keyof AppProps["UIOptions"]["tools"]>

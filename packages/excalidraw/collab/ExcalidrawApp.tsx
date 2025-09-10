@@ -821,38 +821,6 @@ const ExcalidrawWrapper = (props : ExcalidrawAppProps) => {
         initialData={initialStatePromiseRef.current.promise}
         isCollaborating={isCollaborating}
         onPointerUpdate={collabAPI?.onPointerUpdate}
-        UIOptions={{
-          canvasActions: {
-            toggleTheme: true,
-            export: {
-              onExportToBackend,
-              // renderCustomUI: excalidrawAPI
-              //   ? (elements, appState, files) => {
-              //       return (
-              //         <ExportToExcalidrawPlus
-              //           elements={elements}
-              //           appState={appState}
-              //           files={files}
-              //           name={excalidrawAPI.getName()}
-              //           onError={(error) => {
-              //             excalidrawAPI?.updateScene({
-              //               appState: {
-              //                 errorMessage: error.message,
-              //               },
-              //             });
-              //           }}
-              //           onSuccess={() => {
-              //             excalidrawAPI.updateScene({
-              //               appState: { openDialog: null },
-              //             });
-              //           }}
-              //         />
-              //       );
-              //     }
-              //   : undefined,
-            },
-          },
-        }}
         langCode={langCode}
         renderCustomStats={renderCustomStats}
         detectScroll={false}

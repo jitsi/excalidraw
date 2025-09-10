@@ -281,9 +281,13 @@ export const URL_HASH_KEYS = {
 
 export const DEFAULT_UI_OPTIONS: AppProps["UIOptions"] = {
   canvasActions: {
+    allowedShapes: [],
+    allowedShortcuts: [],
     changeViewBackgroundColor: true,
     clearCanvas: true,
+    disableFileDrop: false,
     export: { saveFileToDisk: true },
+    hideHelpDialog : false,
     loadScene: true,
     saveToActiveFile: true,
     toggleTheme: null,
