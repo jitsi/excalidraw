@@ -268,11 +268,13 @@ export const SelectedShapeActions = ({
 
 export const ShapesSwitcher = ({
   activeTool,
+  allowedShapes,
   appState,
   app,
   UIOptions,
 }: {
   activeTool: UIAppState["activeTool"];
+  allowedShapes: Array<string>;
   appState: UIAppState;
   app: AppClassProperties;
   UIOptions: AppProps["UIOptions"];
@@ -287,7 +289,9 @@ export const ShapesSwitcher = ({
 
   return (
     <>
-      {SHAPES.map(({ value, icon, key, numericKey, fillable }, index) => {
+      {SHAPES.filter(
+      (shape) => allowedShapes.includes(shape.value),
+    ).map(({ value, icon, key, numericKey, fillable }, index) => {
         if (
           UIOptions.tools?.[
             value as Extract<typeof value, keyof AppProps["UIOptions"]["tools"]>

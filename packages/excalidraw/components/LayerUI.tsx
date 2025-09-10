@@ -291,6 +291,7 @@ const LayerUI = ({
                             />
 
                             <ShapesSwitcher
+                              allowedShapes={UIOptions.canvasActions.allowedShapes}
                               appState={appState}
                               activeTool={appState.activeTool}
                               UIOptions={UIOptions}
@@ -500,6 +501,7 @@ const LayerUI = ({
       )}
       {device.editor.isMobile && (
         <MobileMenu
+          allowedShapes={UIOptions.canvasActions.allowedShapes}
           app={app}
           appState={appState}
           elements={elements}
@@ -537,6 +539,7 @@ const LayerUI = ({
               actionManager={actionManager}
               showExitZenModeBtn={showExitZenModeBtn}
               renderWelcomeScreen={renderWelcomeScreen}
+              UIOptions={UIOptions}
             />
             {appState.scrolledOutside && (
               <button

@@ -627,9 +627,13 @@ export type ExportOpts = {
 // (see manager renderAction). We also override canvasAction values in
 // Excalidraw package index.tsx.
 export type CanvasActions = Partial<{
+  allowedShapes?: Array<string>;
+  allowedShortcuts?: Array<string>;
   changeViewBackgroundColor: boolean;
   clearCanvas: boolean;
+  disableFileDrop?: boolean;
   export: false | ExportOpts;
+  hideHelpDialog?: boolean;
   loadScene: boolean;
   saveToActiveFile: boolean;
   toggleTheme: boolean | null;

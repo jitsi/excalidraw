@@ -29,6 +29,7 @@ import { useTunnels } from "../context/tunnels";
 type MobileMenuProps = {
   appState: UIAppState;
   actionManager: ActionManager;
+  allowedShapes: Array<string>;
   renderJSONExportDialog: () => React.ReactNode;
   renderImageExportDialog: () => React.ReactNode;
   setAppState: React.Component<any, AppState>["setState"];
@@ -61,6 +62,7 @@ export const MobileMenu = ({
   renderTopRightUI,
   renderCustomStats,
   renderSidebars,
+  allowedShapes,
   device,
   renderWelcomeScreen,
   UIOptions,
@@ -85,6 +87,7 @@ export const MobileMenu = ({
                     <ShapesSwitcher
                       appState={appState}
                       activeTool={appState.activeTool}
+                      allowedShapes={allowedShapes}
                       UIOptions={UIOptions}
                       app={app}
                     />

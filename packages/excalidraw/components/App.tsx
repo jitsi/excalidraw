@@ -10231,6 +10231,9 @@ class App extends React.Component<AppProps, AppState> {
   };
 
   private handleAppOnDrop = async (event: React.DragEvent<HTMLDivElement>) => {
+    if (this.props.UIOptions.canvasActions.disableFileDrop) {
+      return;
+    }
     // must be retrieved first, in the same frame
     const { file, fileHandle } = await getFileFromEvent(event);
     const { x: sceneX, y: sceneY } = viewportCoordsToSceneCoords(
