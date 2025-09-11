@@ -29,17 +29,17 @@ jobs:
       - name: Cache node modules
         uses: actions/cache@v4
         with:
-          path: ~/.npm
-          key: ${{ runner.os }}-node-${{ hashFiles('**/package-lock.json') }}
+          path: ~/.yarn
+          key: ${{ runner.os }}-yarn-${{ hashFiles('**/yarn.lock') }}
           restore-keys: |
-            ${{ runner.os }}-node-
+            ${{ runner.os }}-yarn-
             
-      - run: npm ci
+      - run: yarn install --frozen-lockfile
 
-      - run: npm version ${{ github.event.inputs.version }} --no-commit-hooks --no-git-tag-version
+      - run: yarn version --new-version ${{ github.event.inputs.version }} --no-commit-hooks --no-git-tag-version
         working-directory: packages/excalidraw
 
-      - run: npm run build:umd
+      - run: yarn build:esm
         working-directory: packages/excalidraw
 
       - uses: stefanzweifel/git-auto-commit-action@v5
