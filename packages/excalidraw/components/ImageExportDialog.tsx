@@ -1,7 +1,7 @@
 import React, { useEffect, useRef, useState } from "react";
 
 import type { ActionManager } from "../actions/manager";
-import type { AppClassProperties, BinaryFiles, UIAppState } from "../types";
+import type { AppClassProperties, BinaryFiles, SaveAsImageOptions, UIAppState } from "../types";
 
 import {
   actionExportWithDarkMode,
@@ -57,6 +57,7 @@ type ImageExportModalProps = {
   elementsSnapshot: readonly NonDeletedExcalidrawElement[];
   files: BinaryFiles;
   actionManager: ActionManager;
+  options: SaveAsImageOptions;
   onExportImage: AppClassProperties["onExportImage"];
   name: string;
 };
@@ -66,6 +67,7 @@ const ImageExportModal = ({
   elementsSnapshot,
   files,
   actionManager,
+  options,
   onExportImage,
   name,
 }: ImageExportModalProps) => {
@@ -210,6 +212,7 @@ const ImageExportModal = ({
             />
           </ExportSetting>
         )}
+        {!options.defaultBackgroundValue && (
         <ExportSetting
           label={t("imageExportDialog.label.withBackground")}
           name="exportBackgroundSwitch"
@@ -227,7 +230,8 @@ const ImageExportModal = ({
             }}
           />
         </ExportSetting>
-        {supportsContextFilters && (
+        )}
+        {!options.hideTheme && supportsContextFilters && (
           <ExportSetting
             label={t("imageExportDialog.label.darkMode")}
             name="exportDarkModeSwitch"
@@ -246,6 +250,7 @@ const ImageExportModal = ({
             />
           </ExportSetting>
         )}
+        {!options.disableSceneEmbed && (
         <ExportSetting
           label={t("imageExportDialog.label.embedScene")}
           tooltip={t("imageExportDialog.tooltip.embedScene")}
@@ -264,6 +269,8 @@ const ImageExportModal = ({
             }}
           />
         </ExportSetting>
+        )}
+        {!options.disableScale && (
         <ExportSetting
           label={t("imageExportDialog.label.scale")}
           name="exportScale"
@@ -281,6 +288,7 @@ const ImageExportModal = ({
             }))}
           />
         </ExportSetting>
+        )}
 
         <div className="ImageExportModal__settings__buttons">
           <FilledButton
@@ -307,7 +315,7 @@ const ImageExportModal = ({
           >
             {t("imageExportDialog.button.exportToSvg")}
           </FilledButton>
-          {(probablySupportsClipboardBlob || isFirefox) && (
+          {!options.disableClipboard && (probablySupportsClipboardBlob || isFirefox) && (
             <FilledButton
               className="ImageExportModal__settings__buttons__button"
               label={t("imageExportDialog.title.copyPngToClipboard")}
@@ -371,6 +379,7 @@ export const ImageExportDialog = ({
   appState,
   files,
   actionManager,
+  options,
   onExportImage,
   onCloseRequest,
   name,
@@ -379,6 +388,7 @@ export const ImageExportDialog = ({
   elements: readonly NonDeletedExcalidrawElement[];
   files: BinaryFiles;
   actionManager: ActionManager;
+  options: SaveAsImageOptions;
   onExportImage: AppClassProperties["onExportImage"];
   onCloseRequest: () => void;
   name: string;
@@ -399,6 +409,7 @@ export const ImageExportDialog = ({
         appStateSnapshot={appStateSnapshot}
         files={files}
         actionManager={actionManager}
+        options={options}
         onExportImage={onExportImage}
         name={name}
       />

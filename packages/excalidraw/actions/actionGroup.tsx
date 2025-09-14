@@ -185,13 +185,15 @@ export const actionGroup = register({
     enableActionGroup(elements, appState, app),
   keyTest: (event) =>
     !event.shiftKey && event[KEYS.CTRL_OR_CMD] && event.key === KEYS.G,
-  PanelComponent: ({ elements, appState, updateData, app }) => (
+  PanelComponent: ({ elements, appState, updateData, app, data }) => (
     <ToolButton
       hidden={!enableActionGroup(elements, appState, app)}
       type="button"
       icon={<GroupIcon theme={appState.theme} />}
       onClick={() => updateData(null)}
-      title={`${t("labels.group")} — ${getShortcutKey("CtrlOrCmd+G")}`}
+      title={`${t("labels.group")}${
+        data?.disableShortcuts ? "" : ` — ${getShortcutKey("CtrlOrCmd+G")}`
+      }`}
       aria-label={t("labels.group")}
       visible={isSomeElementSelected(getNonDeletedElements(elements), appState)}
     ></ToolButton>
@@ -294,13 +296,17 @@ export const actionUngroup = register({
     event.key === KEYS.G.toUpperCase(),
   predicate: (elements, appState) => getSelectedGroupIds(appState).length > 0,
 
-  PanelComponent: ({ elements, appState, updateData }) => (
+  PanelComponent: ({ elements, appState, updateData, data }) => (
     <ToolButton
       type="button"
       hidden={getSelectedGroupIds(appState).length === 0}
       icon={<UngroupIcon theme={appState.theme} />}
       onClick={() => updateData(null)}
-      title={`${t("labels.ungroup")} — ${getShortcutKey("CtrlOrCmd+Shift+G")}`}
+      title={`${t("labels.ungroup")}${
+        data?.disableShortcuts
+          ? ""
+          : ` — ${getShortcutKey("CtrlOrCmd+Shift+G")}`
+      }`}
       aria-label={t("labels.ungroup")}
       visible={isSomeElementSelected(getNonDeletedElements(elements), appState)}
     ></ToolButton>

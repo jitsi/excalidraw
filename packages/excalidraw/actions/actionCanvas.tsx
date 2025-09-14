@@ -59,7 +59,7 @@ export const actionChangeViewBackgroundColor = register({
         : CaptureUpdateAction.EVENTUALLY,
     };
   },
-  PanelComponent: ({ elements, appState, updateData, appProps }) => {
+  PanelComponent: ({ elements, appState, updateData, appProps, data }) => {
     // FIXME move me to src/components/mainMenu/DefaultItems.tsx
     return (
       <ColorPicker
@@ -68,6 +68,7 @@ export const actionChangeViewBackgroundColor = register({
         label={t("labels.canvasBackground")}
         type="canvasBackground"
         color={appState.viewBackgroundColor}
+        hideColorInput={data?.hideColorInput}
         onChange={(color) => updateData({ viewBackgroundColor: color })}
         data-testid="canvas-background-picker"
         elements={elements}
@@ -143,12 +144,14 @@ export const actionZoomIn = register({
       captureUpdate: CaptureUpdateAction.EVENTUALLY,
     };
   },
-  PanelComponent: ({ updateData, appState }) => (
+  PanelComponent: ({ updateData, appState, data }) => (
     <ToolButton
       type="button"
       className="zoom-in-button zoom-button"
       icon={ZoomInIcon}
-      title={`${t("buttons.zoomIn")} — ${getShortcutKey("CtrlOrCmd++")}`}
+      title={`${t("buttons.zoomIn")}${
+        data?.disableShortcuts ? "" : ` — ${getShortcutKey("CtrlOrCmd++")}`
+      }`}
       aria-label={t("buttons.zoomIn")}
       disabled={appState.zoom.value >= MAX_ZOOM}
       onClick={() => {
@@ -184,12 +187,14 @@ export const actionZoomOut = register({
       captureUpdate: CaptureUpdateAction.EVENTUALLY,
     };
   },
-  PanelComponent: ({ updateData, appState }) => (
+  PanelComponent: ({ updateData, appState, data }) => (
     <ToolButton
       type="button"
       className="zoom-out-button zoom-button"
       icon={ZoomOutIcon}
-      title={`${t("buttons.zoomOut")} — ${getShortcutKey("CtrlOrCmd+-")}`}
+      title={`${t("buttons.zoomOut")}${
+        data?.disableShortcuts ? "" : ` — ${getShortcutKey("CtrlOrCmd+-")}`
+      }`}
       aria-label={t("buttons.zoomOut")}
       disabled={appState.zoom.value <= MIN_ZOOM}
       onClick={() => {

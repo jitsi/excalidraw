@@ -86,7 +86,7 @@ const DefaultMainMenu: React.FC<{
   UIOptions: AppProps["UIOptions"];
 }> = ({ UIOptions }) => {
   return (
-    <MainMenu __fallback>
+    <MainMenu __fallback UIOptions={UIOptions}>
       <MainMenu.DefaultItems.LoadScene />
       <MainMenu.DefaultItems.SaveToActiveFile />
       {/* FIXME we should to test for this inside the item itself */}
@@ -178,6 +178,7 @@ const LayerUI = ({
         appState={appState}
         files={files}
         actionManager={actionManager}
+        options={UIOptions.canvasActions.saveAsImageOptions}
         onExportImage={onExportImage}
         onCloseRequest={() => setAppState({ openDialog: null })}
         name={app.getName()}
@@ -215,6 +216,7 @@ const LayerUI = ({
           elementsMap={app.scene.getNonDeletedElementsMap()}
           renderAction={actionManager.renderAction}
           app={app}
+          UIOptions={UIOptions}
         />
       </Island>
     </Section>
@@ -260,12 +262,14 @@ const LayerUI = ({
                             "zen-mode": appState.zenModeEnabled,
                           })}
                         >
+                          {!UIOptions.canvasActions.disableHints && (
                           <HintViewer
                             appState={appState}
                             isMobile={device.editor.isMobile}
                             device={device}
                             app={app}
                           />
+                          )}
                           {heading}
                           <Stack.Row gap={1}>
                             <PenModeButton
@@ -275,13 +279,16 @@ const LayerUI = ({
                               title={t("toolBar.penMode")}
                               penDetected={appState.penDetected}
                             />
+                            {
+                              !UIOptions.canvasActions.hideLockButton && (
                             <LockButton
                               checked={appState.activeTool.locked}
                               onChange={onLockToggle}
                               title={t("toolBar.lock")}
                             />
-
-                            <div className="App-toolbar__divider" />
+                            ) && (
+                              <div className="App-toolbar__divider" />
+                            )}
 
                             <HandButton
                               checked={isHandToolActive(appState)}
@@ -296,6 +303,7 @@ const LayerUI = ({
                               activeTool={appState.activeTool}
                               UIOptions={UIOptions}
                               app={app}
+                              disableShortcuts={UIOptions.canvasActions.disableShortcuts}
                             />
                           </Stack.Row>
                         </Island>
@@ -333,7 +341,7 @@ const LayerUI = ({
               },
             )}
           >
-            {appState.collaborators.size > 0 && (
+            {!UIOptions.canvasActions.hideUserList && appState.collaborators.size > 0 && (
               <UserList
                 collaborators={appState.collaborators}
                 userToFollow={appState.userToFollow?.socketId || null}
@@ -466,6 +474,7 @@ const LayerUI = ({
       )}
       {appState.openDialog?.name === "help" && (
         <HelpDialog
+          hideLibraries={UIOptions.canvasActions.hideLibraries}
           onClose={() => {
             setAppState({ openDialog: null });
           }}

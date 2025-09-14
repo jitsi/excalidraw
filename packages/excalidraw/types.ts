@@ -634,11 +634,38 @@ export type CanvasActions = Partial<{
   disableFileDrop?: boolean;
   export: false | ExportOpts;
   hideHelpDialog?: boolean;
+  disableAlignItems?: boolean;
+  disableHints?: boolean;
+  disableGrouping?: boolean;
+  disableLink?: boolean;
+  disableShortcuts?: boolean;
+  disableVerticalAlignOptions?: boolean;
+  fontSizeOptions?: Array<String>;
+  hideFontFamily?: boolean;
+  hideUserList?: boolean;
+  hideLockButton?: boolean;
+  hideTextAlign?: boolean
+  hideArrowHeadsOptions?: boolean;
+  hideColorInput?: boolean;
+  hideLayers?: boolean;
+  hideLibraries?: boolean;
+  hideOpacityInput? : boolean;
+  hideStrokeStyle?: boolean;
   loadScene: boolean;
   saveToActiveFile: boolean;
   toggleTheme: boolean | null;
   saveAsImage: boolean;
+  saveAsImageOptions?: SaveAsImageOptions;
 }>;
+
+export type SaveAsImageOptions = {
+  defaultBackgroundValue?: boolean;
+  disableClipboard?: boolean;
+  disableScale?: boolean;
+  disableSceneEmbed?: boolean;
+  disableSelection?: boolean;
+  hideTheme?: boolean;
+};
 
 export type UIOptions = Partial<{
   dockedSidebarBreakpoint: number;

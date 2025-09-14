@@ -51,6 +51,7 @@ type ToolButtonProps =
   | (ToolButtonBaseProps & {
       type: "radio";
       checked: boolean;
+      disableShortcuts?: boolean;
       onChange?(data: { pointerType: PointerType | null }): void;
       onPointerDown?(data: { pointerType: PointerType }): void;
     });
@@ -181,7 +182,9 @@ export const ToolButton = React.forwardRef(
           type="radio"
           name={props.name}
           aria-label={props["aria-label"]}
-          aria-keyshortcuts={props["aria-keyshortcuts"]}
+          {...(props.disableShortcuts
+          ? {}
+          : { ariaKeyshortcuts: props["aria-keyshortcuts"] })}
           data-testid={props["data-testid"]}
           id={`${excalId}-${props.id}`}
           onChange={() => {
@@ -192,7 +195,7 @@ export const ToolButton = React.forwardRef(
         />
         <div className="ToolIcon__icon">
           {props.icon}
-          {props.keyBindingLabel && (
+          {!props.disableShortcuts && props.keyBindingLabel && (
             <span className="ToolIcon__keybinding">
               {props.keyBindingLabel}
             </span>

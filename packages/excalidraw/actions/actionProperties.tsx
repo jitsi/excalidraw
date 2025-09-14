@@ -306,7 +306,7 @@ export const actionChangeStrokeColor = register({
         : CaptureUpdateAction.EVENTUALLY,
     };
   },
-  PanelComponent: ({ elements, appState, updateData, appProps }) => (
+  PanelComponent: ({ elements, appState, updateData, appProps, data }) => (
     <>
       <h3 aria-hidden="true">{t("labels.stroke")}</h3>
       <ColorPicker
@@ -321,6 +321,7 @@ export const actionChangeStrokeColor = register({
           true,
           appState.currentItemStrokeColor,
         )}
+        hideColorInput={data?.hideColorInput}
         onChange={(color) => updateData({ currentItemStrokeColor: color })}
         elements={elements}
         appState={appState}
@@ -352,7 +353,7 @@ export const actionChangeBackgroundColor = register({
         : CaptureUpdateAction.EVENTUALLY,
     };
   },
-  PanelComponent: ({ elements, appState, updateData, appProps }) => (
+  PanelComponent: ({ elements, appState, updateData, appProps, data }) => (
     <>
       <h3 aria-hidden="true">{t("labels.background")}</h3>
       <ColorPicker
@@ -367,6 +368,7 @@ export const actionChangeBackgroundColor = register({
           true,
           appState.currentItemBackgroundColor,
         )}
+        hideColorInput={data?.hideColorInput}
         onChange={(color) => updateData({ currentItemBackgroundColor: color })}
         elements={elements}
         appState={appState}
@@ -647,36 +649,52 @@ export const actionChangeFontSize = register({
   perform: (elements, appState, value, app) => {
     return changeFontSize(elements, appState, app, () => value, value);
   },
-  PanelComponent: ({ elements, appState, updateData, app }) => (
+  PanelComponent: ({ elements, appState, updateData, app, data }) => (
     <fieldset>
       <legend>{t("labels.fontSize")}</legend>
       <ButtonIconSelect
         group="font-size"
         options={[
-          {
-            value: 16,
-            text: t("labels.small"),
-            icon: FontSizeSmallIcon,
-            testId: "fontSize-small",
-          },
-          {
-            value: 20,
-            text: t("labels.medium"),
-            icon: FontSizeMediumIcon,
-            testId: "fontSize-medium",
-          },
-          {
-            value: 28,
-            text: t("labels.large"),
-            icon: FontSizeLargeIcon,
-            testId: "fontSize-large",
-          },
-          {
-            value: 36,
-            text: t("labels.veryLarge"),
-            icon: FontSizeExtraLargeIcon,
-            testId: "fontSize-veryLarge",
-          },
+          ...(data?.fontSizeOptions.includes("s")
+        ? [
+            {
+          value: 16,
+          text: t("labels.small"),
+          icon: FontSizeSmallIcon,
+          testId: "fontSize-small",
+            },
+          ]
+        : []),
+          ...(data?.fontSizeOptions.includes("m")
+        ? [
+            {
+          value: 20,
+          text: t("labels.medium"),
+          icon: FontSizeMediumIcon,
+          testId: "fontSize-medium",
+            },
+          ]
+        : []),
+          ...(data?.fontSizeOptions.includes("l")
+        ? [
+            {
+          value: 28,
+          text: t("labels.large"),
+          icon: FontSizeLargeIcon,
+          testId: "fontSize-large",
+            },
+          ]
+        : []),
+          ...(data?.fontSizeOptions.includes("xl")
+        ? [
+            {
+          value: 36,
+          text: t("labels.veryLarge"),
+          icon: FontSizeExtraLargeIcon,
+          testId: "fontSize-veryLarge",
+            },
+          ]
+        : []),
         ]}
         value={getFormValue(
           elements,

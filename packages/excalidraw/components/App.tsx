@@ -4045,6 +4045,8 @@ class App extends React.Component<AppProps, AppState> {
   private onKeyDown = withBatchedUpdates(
     (event: React.KeyboardEvent | KeyboardEvent) => {
       // normalize `event.key` when CapsLock is pressed #2372
+      const { disableShortcuts } =
+        this.props.UIOptions.canvasActions;
 
       if (
         "Proxy" in window &&
@@ -4438,6 +4440,7 @@ class App extends React.Component<AppProps, AppState> {
           }
         }
       } else if (
+        !disableShortcuts &&
         !event.ctrlKey &&
         !event.altKey &&
         !event.metaKey &&
@@ -10894,26 +10897,26 @@ class App extends React.Component<AppProps, AppState> {
       actionCopyStyles,
       actionPasteStyles,
       CONTEXT_MENU_SEPARATOR,
-      actionGroup,
+      !this.props.UIOptions.canvasActions.disableGrouping && actionGroup,
       actionTextAutoResize,
-      actionUnbindText,
-      actionBindText,
+      !this.props.UIOptions.canvasActions.disableGrouping && actionUnbindText,
+      !this.props.UIOptions.canvasActions.disableGrouping && actionBindText,
       actionWrapTextInContainer,
-      actionUngroup,
-      CONTEXT_MENU_SEPARATOR,
-      actionAddToLibrary,
-      CONTEXT_MENU_SEPARATOR,
-      actionSendBackward,
-      actionBringForward,
-      actionSendToBack,
-      actionBringToFront,
-      CONTEXT_MENU_SEPARATOR,
+      !this.props.UIOptions.canvasActions.disableGrouping && actionUngroup,
+      this.props.UIOptions.canvasActions.disableGrouping && CONTEXT_MENU_SEPARATOR,
+      !this.props.UIOptions.canvasActions.hideLibraries && actionAddToLibrary,
+      !this.props.UIOptions.canvasActions.hideLibraries && CONTEXT_MENU_SEPARATOR,
+      !this.props.UIOptions.canvasActions.hideLayers && actionSendBackward,
+      !this.props.UIOptions.canvasActions.hideLayers && actionBringForward,
+      !this.props.UIOptions.canvasActions.hideLayers && actionSendToBack,
+      !this.props.UIOptions.canvasActions.hideLayers && actionBringToFront,
+      !this.props.UIOptions.canvasActions.hideLayers && CONTEXT_MENU_SEPARATOR,
       actionFlipHorizontal,
       actionFlipVertical,
       CONTEXT_MENU_SEPARATOR,
       actionToggleLinearEditor,
       CONTEXT_MENU_SEPARATOR,
-      actionLink,
+      !this.props.UIOptions.canvasActions.disableLink && actionLink,
       actionCopyElementLink,
       CONTEXT_MENU_SEPARATOR,
       actionDuplicateSelection,

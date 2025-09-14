@@ -11,6 +11,7 @@ import { withInternalFallback } from "../hoc/withInternalFallback";
 import { composeEventHandlers } from "../../utils";
 import { useTunnels } from "../../context/tunnels";
 import { useUIAppState } from "../../context/ui-appState";
+import type { AppProps } from "../../types";
 
 const MainMenu = Object.assign(
   withInternalFallback(
@@ -18,12 +19,14 @@ const MainMenu = Object.assign(
     ({
       children,
       onSelect,
+      UIOptions,
     }: {
       children?: React.ReactNode;
       /**
        * Called when any menu item is selected (clicked on).
        */
       onSelect?: (event: Event) => void;
+      UIOptions?: AppProps["UIOptions"];
     }) => {
       const { MainMenuTunnel } = useTunnels();
       const device = useDevice();
@@ -54,7 +57,7 @@ const MainMenu = Object.assign(
               })}
             >
               {children}
-              {device.editor.isMobile && appState.collaborators.size > 0 && (
+              {device.editor.isMobile && !UIOptions?.canvasActions?.hideUserList && appState.collaborators.size > 0 && (
                 <fieldset className="UserList-Wrapper">
                   <legend>{t("labels.collaborators")}</legend>
                   <UserList

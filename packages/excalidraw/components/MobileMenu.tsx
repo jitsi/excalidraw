@@ -90,6 +90,7 @@ export const MobileMenu = ({
                       allowedShapes={allowedShapes}
                       UIOptions={UIOptions}
                       app={app}
+                      disableShortcuts={UIOptions.canvasActions.disableShortcuts}
                     />
                   </Stack.Row>
                 </Island>
@@ -106,12 +107,14 @@ export const MobileMenu = ({
                     isMobile
                     penDetected={appState.penDetected}
                   />
-                  <LockButton
-                    checked={appState.activeTool.locked}
-                    onChange={onLockToggle}
-                    title={t("toolBar.lock")}
-                    isMobile
-                  />
+                  {!UIOptions.canvasActions.hideLockButton && (
+                    <LockButton
+                      checked={appState.activeTool.locked}
+                      onChange={onLockToggle}
+                      title={t("toolBar.lock")}
+                      isMobile
+                    />
+                  )}
                   <HandButton
                     checked={isHandToolActive(appState)}
                     onChange={() => onHandToolToggle()}
@@ -123,12 +126,14 @@ export const MobileMenu = ({
             </Stack.Col>
           )}
         </Section>
-        <HintViewer
-          appState={appState}
-          isMobile={true}
-          device={device}
-          app={app}
-        />
+        {!UIOptions.canvasActions.disableHints && (
+          <HintViewer
+            appState={appState}
+            isMobile={true}
+            device={device}
+            app={app}
+          />
+        )}
       </FixedSideContainer>
     );
   };
@@ -186,6 +191,7 @@ export const MobileMenu = ({
                 elementsMap={app.scene.getNonDeletedElementsMap()}
                 renderAction={actionManager.renderAction}
                 app={app}
+                UIOptions={UIOptions}
               />
             </Section>
           ) : null}

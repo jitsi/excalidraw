@@ -90,7 +90,8 @@ export class ActionManager {
             ? canvasActions[action.name as keyof typeof canvasActions]
             : true) &&
           action.keyTest &&
-          canvasActions.allowedShortcuts.includes(action.name) &&
+          (canvasActions.allowedShortcuts.includes(action.name) ||
+          !canvasActions.disableShortcuts) &&
           action.keyTest(
             event,
             this.getAppState(),

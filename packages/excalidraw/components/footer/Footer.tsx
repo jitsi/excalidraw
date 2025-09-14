@@ -47,6 +47,7 @@ const Footer = ({
         <Stack.Col gap={2}>
           <Section heading="canvasActions">
             <ZoomActions
+              disableShortcuts={UIOptions.canvasActions.disableShortcuts}
               renderAction={actionManager.renderAction}
               zoom={appState.zoom}
             />

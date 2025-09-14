@@ -49,6 +49,7 @@ interface ColorPickerProps {
   label: string;
   elements: readonly ExcalidrawElement[];
   appState: AppState;
+  hideColorInput?: boolean;
   palette?: ColorPaletteCustom | null;
   topPicks?: ColorTuple;
   updateData: (formData?: any) => void;
@@ -60,6 +61,7 @@ const ColorPickerPopupContent = ({
   onChange,
   label,
   elements,
+  hideColorInput,
   palette = COLOR_PALETTE,
   updateData,
 }: Pick<
@@ -69,6 +71,7 @@ const ColorPickerPopupContent = ({
   | "onChange"
   | "label"
   | "elements"
+  | "hideColorInput"
   | "palette"
   | "updateData"
 >) => {
@@ -80,6 +83,7 @@ const ColorPickerPopupContent = ({
   const colorInputJSX = (
     <div>
       <PickerHeading>{t("colorPicker.hexCode")}</PickerHeading>
+      {!hideColorInput && (
       <ColorInput
         color={color}
         label={label}
@@ -88,6 +92,7 @@ const ColorPickerPopupContent = ({
         }}
         colorPickerType={type}
       />
+      )}
     </div>
   );
 
@@ -204,6 +209,7 @@ export const ColorPicker = ({
   onChange,
   label,
   elements,
+  hideColorInput,
   palette = COLOR_PALETTE,
   topPicks,
   updateData,
@@ -232,6 +238,7 @@ export const ColorPicker = ({
             <ColorPickerPopupContent
               type={type}
               color={color}
+              hideColorInput={hideColorInput}
               onChange={onChange}
               label={label}
               elements={elements}

@@ -92,11 +92,13 @@ export const SelectedShapeActions = ({
   elementsMap,
   renderAction,
   app,
+  UIOptions
 }: {
   appState: UIAppState;
   elementsMap: NonDeletedElementsMap | NonDeletedSceneElementsMap;
   renderAction: ActionManager["renderAction"];
   app: AppClassProperties;
+  UIOptions: AppProps["UIOptions"]
 }) => {
   const targetElements = getTargetElements(elementsMap, appState);
 
@@ -143,10 +145,14 @@ export const SelectedShapeActions = ({
     <div className="panelColumn">
       <div>
         {canChangeStrokeColor(appState, targetElements) &&
-          renderAction("changeStrokeColor")}
+          renderAction("changeStrokeColor", {
+            hideColorInput: UIOptions.canvasActions.hideColorInput,
+          })}
       </div>
       {canChangeBackgroundColor(appState, targetElements) && (
-        <div>{renderAction("changeBackgroundColor")}</div>
+        <div>{renderAction("changeBackgroundColor",{
+          hideColorInput: UIOptions.canvasActions.hideColorInput,
+        })}</div>
       )}
       {showFillIcons && renderAction("changeFillStyle")}
 
@@ -158,7 +164,8 @@ export const SelectedShapeActions = ({
         targetElements.some((element) => element.type === "freedraw")) &&
         renderAction("changeStrokeShape")}
 
-      {(hasStrokeStyle(appState.activeTool.type) ||
+      {!UIOptions.canvasActions.hideStrokeStyle &&
+      (hasStrokeStyle(appState.activeTool.type) ||
         targetElements.some((element) => hasStrokeStyle(element.type))) && (
         <>
           {renderAction("changeStrokeStyle")}
@@ -179,24 +186,29 @@ export const SelectedShapeActions = ({
       {(appState.activeTool.type === "text" ||
         targetElements.some(isTextElement)) && (
         <>
-          {renderAction("changeFontFamily")}
-          {renderAction("changeFontSize")}
+          {!UIOptions.canvasActions.hideFontFamily && renderAction("changeFontFamily")}
+          {renderAction("changeFontSize", { 
+            fontSizeOptions: UIOptions?.canvasActions?.fontSizeOptions 
+          })}
           {(appState.activeTool.type === "text" ||
             suppportsHorizontalAlign(targetElements, elementsMap)) &&
+            !UIOptions.canvasActions.hideTextAlign &&
             renderAction("changeTextAlign")}
         </>
       )}
 
-      {shouldAllowVerticalAlign(targetElements, elementsMap) &&
+      {!UIOptions.canvasActions.disableVerticalAlignOptions &&
+       shouldAllowVerticalAlign(targetElements, elementsMap) &&
         renderAction("changeVerticalAlign")}
-      {(canHaveArrowheads(appState.activeTool.type) ||
+      {!UIOptions.canvasActions.hideArrowHeadsOptions && (canHaveArrowheads(appState.activeTool.type) ||
         targetElements.some((element) => canHaveArrowheads(element.type))) && (
         <>{renderAction("changeArrowhead")}</>
       )}
 
-      {renderAction("changeOpacity")}
+      {!UIOptions.canvasActions.hideOpacityInput && renderAction("changeOpacity")}
 
-      <fieldset>
+      {!UIOptions.canvasActions.hideLayers && (
+        <fieldset>
         <legend>{t("labels.layers")}</legend>
         <div className="buttonList">
           {renderAction("sendToBack")}
@@ -204,9 +216,12 @@ export const SelectedShapeActions = ({
           {renderAction("bringForward")}
           {renderAction("bringToFront")}
         </div>
-      </fieldset>
+        </fieldset>
+      )}
 
-      {showAlignActions && !isSingleElementBoundContainer && (
+      {showAlignActions &&
+       !isSingleElementBoundContainer &&
+        !UIOptions.canvasActions.disableAlignItems && (
         <fieldset>
           <legend>{t("labels.align")}</legend>
           <div className="buttonList">
@@ -248,15 +263,25 @@ export const SelectedShapeActions = ({
           </div>
         </fieldset>
       )}
-      {!isEditingTextOrNewElement && targetElements.length > 0 && (
+      {!UIOptions.canvasActions.disableGrouping && !isEditingTextOrNewElement && targetElements.length > 0 && (
         <fieldset>
           <legend>{t("labels.actions")}</legend>
           <div className="buttonList">
-            {!device.editor.isMobile && renderAction("duplicateSelection")}
+            {!device.editor.isMobile && renderAction("duplicateSelection",{
+              disableShortcuts: UIOptions.canvasActions.disableShortcuts
+            })}
             {!device.editor.isMobile && renderAction("deleteSelectedElements")}
-            {renderAction("group")}
-            {renderAction("ungroup")}
-            {showLinkIcon && renderAction("hyperlink")}
+            {!UIOptions.canvasActions.disableGrouping && (
+              <>
+                {renderAction("group", {
+                  disableShortcuts: UIOptions.canvasActions.disableShortcuts,
+                })}
+                {renderAction("ungroup", {
+                  disableShortcuts: UIOptions.canvasActions.disableShortcuts,
+                })}
+              </>
+            )}
+            {!UIOptions.canvasActions.disableLink && renderAction("hyperlink")}
             {showCropEditorAction && renderAction("cropEditor")}
             {showLineEditorAction && renderAction("toggleLinearEditor")}
           </div>
@@ -271,12 +296,14 @@ export const ShapesSwitcher = ({
   allowedShapes,
   appState,
   app,
+  disableShortcuts,
   UIOptions,
 }: {
   activeTool: UIAppState["activeTool"];
   allowedShapes: Array<string>;
   appState: UIAppState;
   app: AppClassProperties;
+  disableShortcuts?: boolean;
   UIOptions: AppProps["UIOptions"];
 }) => {
   const [isExtraToolsMenuOpen, setIsExtraToolsMenuOpen] = useState(false);
@@ -306,6 +333,10 @@ export const ShapesSwitcher = ({
         const shortcut = letter
           ? `${letter} ${t("helpDialog.or")} ${numericKey}`
           : `${numericKey}`;
+        const title = disableShortcuts
+          ? capitalizeString(label)
+          : `${capitalizeString(label)} — ${shortcut}`;
+
         return (
           <ToolButton
             className={clsx("Shape", { fillable })}
@@ -313,8 +344,9 @@ export const ShapesSwitcher = ({
             type="radio"
             icon={icon}
             checked={activeTool.type === value}
+            disableShortcuts={disableShortcuts}
             name="editor-current-shape"
-            title={`${capitalizeString(label)} — ${shortcut}`}
+            title={title}
             keyBindingLabel={numericKey || letter}
             aria-label={capitalizeString(label)}
             aria-keyshortcuts={shortcut}
@@ -419,17 +451,19 @@ export const ShapesSwitcher = ({
 };
 
 export const ZoomActions = ({
+  disableShortcuts,
   renderAction,
   zoom,
 }: {
+  disableShortcuts?: boolean;
   renderAction: ActionManager["renderAction"];
   zoom: Zoom;
 }) => (
   <Stack.Col gap={1} className={CLASSES.ZOOM_ACTIONS}>
     <Stack.Row align="center">
-      {renderAction("zoomOut")}
+      {renderAction("zoomOut",{ disableShortcuts })}
       {renderAction("resetZoom")}
-      {renderAction("zoomIn")}
+      {renderAction("zoomIn",{ disableShortcuts })}
     </Stack.Row>
   </Stack.Col>
 );

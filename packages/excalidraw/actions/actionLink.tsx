@@ -34,7 +34,7 @@ export const actionLink = register({
     const selectedElements = getSelectedElements(elements, appState);
     return selectedElements.length === 1;
   },
-  PanelComponent: ({ elements, appState, updateData }) => {
+  PanelComponent: ({ elements, appState, updateData, data }) => {
     const selectedElements = getSelectedElements(elements, appState);
 
     return (
@@ -46,7 +46,7 @@ export const actionLink = register({
           isEmbeddableElement(elements[0])
             ? t("labels.link.labelEmbed")
             : t("labels.link.label")
-        } - ${getShortcutKey("CtrlOrCmd+K")}`}
+        }${data?.disableShortcuts ? "" : ` - ${getShortcutKey("CtrlOrCmd+K")}`}`}
         onClick={() => updateData(null)}
         selected={selectedElements.length === 1 && !!selectedElements[0].link}
       />
