@@ -147,7 +147,7 @@ const LayerUI = ({
   const [eyeDropperState, setEyeDropperState] = useAtom(activeEyeDropperAtom);
 
   const renderJSONExportDialog = () => {
-    if (!UIOptions.canvasActions.export) {
+    if (!UIOptions.canvasActions.export || !UIOptions.canvasActions.hideIOActions) {
       return null;
     }
 
@@ -496,7 +496,7 @@ const LayerUI = ({
       )}
       <tunnels.OverwriteConfirmDialogTunnel.Out />
       {renderImageExportDialog()}
-      {renderJSONExportDialog()}
+      {!UIOptions.canvasActions.hideIOActions && renderJSONExportDialog()}
       {appState.pasteDialog.shown && (
         <PasteChartDialog
           setAppState={setAppState}

@@ -301,6 +301,7 @@ export const DEFAULT_UI_OPTIONS: AppProps["UIOptions"] = {
     hideTextAlign: false,
     hideArrowHeadsOptions: false,
     hideColorInput: false,
+    hideIOActions: false,
     hideLayers: false,
     hideLibraries: false,
     hideOpacityInput: false,
