@@ -647,11 +647,13 @@ export type CanvasActions = Partial<{
   hideTextAlign?: boolean
   hideArrowHeadsOptions?: boolean;
   hideColorInput?: boolean;
+  hideEmbedableTools?: boolean;
   hideIOActions?: boolean;
   hideLayers?: boolean;
   hideLibraries?: boolean;
   hideOpacityInput? : boolean;
   hideStrokeStyle?: boolean;
+  hideWelcomeScreen?: boolean;
   loadScene: boolean;
   saveToActiveFile: boolean;
   toggleTheme: boolean | null;

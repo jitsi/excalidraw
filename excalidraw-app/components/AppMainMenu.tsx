@@ -20,22 +20,22 @@ export const AppMainMenu: React.FC<{
 }> = React.memo((props) => {
   return (
     <MainMenu>
-      <MainMenu.DefaultItems.LoadScene />
-      <MainMenu.DefaultItems.SaveToActiveFile />
-      <MainMenu.DefaultItems.Export />
+      {/* <MainMenu.DefaultItems.LoadScene /> */}
+      {/* <MainMenu.DefaultItems.SaveToActiveFile /> */}
+      {/* <MainMenu.DefaultItems.Export /> */}
       <MainMenu.DefaultItems.SaveAsImage />
-      {props.isCollabEnabled && (
+      {/* {props.isCollabEnabled && (
         <MainMenu.DefaultItems.LiveCollaborationTrigger
           isCollaborating={props.isCollaborating}
           onSelect={() => props.onCollabDialogOpen()}
         />
-      )}
-      <MainMenu.DefaultItems.CommandPalette className="highlighted" />
+      )} */}
+      {/* <MainMenu.DefaultItems.CommandPalette className="highlighted" /> */}
       <MainMenu.DefaultItems.SearchMenu />
-      <MainMenu.DefaultItems.Help />
+      {/* <MainMenu.DefaultItems.Help /> */}
       <MainMenu.DefaultItems.ClearCanvas />
       <MainMenu.Separator />
-      <MainMenu.ItemLink
+      {/* <MainMenu.ItemLink
         icon={ExcalLogo}
         href={`${
           import.meta.env.VITE_APP_PLUS_LP
@@ -71,7 +71,7 @@ export const AppMainMenu: React.FC<{
           Visual Debug
         </MainMenu.Item>
       )}
-      <MainMenu.Separator />
+      <MainMenu.Separator /> */}
       <MainMenu.DefaultItems.ToggleTheme
         allowSystemTheme
         theme={props.theme}

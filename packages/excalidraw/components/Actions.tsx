@@ -405,14 +405,6 @@ export const ShapesSwitcher = ({
             {t("toolBar.frame")}
           </DropdownMenu.Item>
           <DropdownMenu.Item
-            onSelect={() => app.setActiveTool({ type: "embeddable" })}
-            icon={EmbedIcon}
-            data-testid="toolbar-embeddable"
-            selected={embeddableToolSelected}
-          >
-            {t("toolBar.embeddable")}
-          </DropdownMenu.Item>
-          <DropdownMenu.Item
             onSelect={() => app.setActiveTool({ type: "laser" })}
             icon={laserPointerToolIcon}
             data-testid="toolbar-laser"
@@ -420,6 +412,16 @@ export const ShapesSwitcher = ({
             shortcut={KEYS.K.toLocaleUpperCase()}
           >
             {t("toolBar.laser")}
+          </DropdownMenu.Item>
+          {!UIOptions.canvasActions.hideEmbedableTools && (
+          <>
+          <DropdownMenu.Item
+            onSelect={() => app.setActiveTool({ type: "embeddable" })}
+            icon={EmbedIcon}
+            data-testid="toolbar-embeddable"
+            selected={embeddableToolSelected}
+          >
+            {t("toolBar.embeddable")}
           </DropdownMenu.Item>
           <div style={{ margin: "6px 0", fontSize: 14, fontWeight: 600 }}>
             Generate
@@ -443,6 +445,8 @@ export const ShapesSwitcher = ({
                 <DropdownMenu.Item.Badge>AI</DropdownMenu.Item.Badge>
               </DropdownMenu.Item>
             </>
+            )}
+          </>
           )}
         </DropdownMenu.Content>
       </DropdownMenu>
