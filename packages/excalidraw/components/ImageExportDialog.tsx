@@ -198,7 +198,7 @@ const ImageExportModal = ({
       </div>
       <div className="ImageExportModal__settings">
         <h3>{t("imageExportDialog.header")}</h3>
-        {hasSelection && (
+        {!options.disableSelection && hasSelection && (
           <ExportSetting
             label={t("imageExportDialog.label.onlySelected")}
             name="exportOnlySelected"

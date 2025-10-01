@@ -652,6 +652,7 @@ export type CanvasActions = Partial<{
   hideLayers?: boolean;
   hideLibraries?: boolean;
   hideOpacityInput? : boolean;
+  hideSharpness?: boolean;
   hideStrokeStyle?: boolean;
   hideWelcomeScreen?: boolean;
   loadScene: boolean;

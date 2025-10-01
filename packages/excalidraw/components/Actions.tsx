@@ -173,10 +173,11 @@ export const SelectedShapeActions = ({
         </>
       )}
 
-      {(canChangeRoundness(appState.activeTool.type) ||
+      {!UIOptions.canvasActions.hideSharpness && (
+      (canChangeRoundness(appState.activeTool.type) ||
         targetElements.some((element) => canChangeRoundness(element.type))) && (
         <>{renderAction("changeRoundness")}</>
-      )}
+      ))}
 
       {(toolIsArrow(appState.activeTool.type) ||
         targetElements.some((element) => toolIsArrow(element.type))) && (

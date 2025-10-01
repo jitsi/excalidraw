@@ -306,6 +306,7 @@ export const DEFAULT_UI_OPTIONS: AppProps["UIOptions"] = {
     hideLayers: false,
     hideLibraries: false,
     hideOpacityInput: false,
+    hideSharpness: false,
     hideStrokeStyle: false,
     hideWelcomeScreen: false,
     loadScene: true,
