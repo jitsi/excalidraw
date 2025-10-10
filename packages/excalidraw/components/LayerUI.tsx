@@ -307,7 +307,7 @@ const LayerUI = ({
                             />
                           </Stack.Row>
                         </Island>
-                        {isCollaborating && (
+                        {!UIOptions.canvasActions.hideLaserOnCollaboration && isCollaborating && (
                           <Island
                             style={{
                               marginLeft: 8,
@@ -397,6 +397,7 @@ const LayerUI = ({
           tunneled away. We only render tunneled components that actually
         have defaults when host do not render anything. */}
       <DefaultMainMenu UIOptions={UIOptions} />
+      {!UIOptions.canvasActions.hideLibraries && (
       <DefaultSidebar.Trigger
         __fallback
         icon={LibraryIcon}
@@ -414,6 +415,7 @@ const LayerUI = ({
       >
         {t("toolBar.library")}
       </DefaultSidebar.Trigger>
+      )}
       <DefaultOverwriteConfirmDialog />
       {appState.openDialog?.name === "ttd" && <TTDDialog __fallback />}
       {/* ------------------------------------------------------------------ */}

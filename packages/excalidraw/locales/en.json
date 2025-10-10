@@ -484,8 +484,8 @@
     }
   },
   "encrypted": {
-    "tooltip": "Your drawings are end-to-end encrypted so Excalidraw's servers will never see them.",
-    "link": "Blog post on end-to-end encryption in Excalidraw"
+    "tooltip": "Your drawings are end-to-end encrypted so Jitsi's servers will never see them.",
+    "link": "Blog post on end-to-end encryption in Jitsi"
   },
   "stats": {
     "angle": "Angle",
