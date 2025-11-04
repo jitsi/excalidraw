@@ -75,7 +75,7 @@ import {
 import { updateStaleImageStatuses } from "./data/FileManager";
 import { newElementWith } from "@excalidraw/excalidraw/element/mutateElement";
 import { isInitializedImageElement } from "@excalidraw/excalidraw/element/typeChecks";
-import { loadFilesFromFirebase } from "./data/firebase";
+import { loadFilesFromStorage } from "./data/storage";
 import {
   LibraryIndexedDBAdapter,
   LibraryLocalStorageMigrationAdapter,
@@ -328,7 +328,12 @@ const initializeScene = async (opts: {
   return { scene: null, isExternalScene: false };
 };
 
-const ExcalidrawWrapper = () => {
+interface ExcalidrawWrapperProps {
+  jwt?: string;
+  storageBackendUrl?: string;
+}
+
+const ExcalidrawWrapper = ({ jwt, storageBackendUrl }: ExcalidrawWrapperProps) => {
   const [errorMessage, setErrorMessage] = useState("");
   const isCollabDisabled = isRunningInIframe();
 
@@ -429,7 +434,7 @@ const ExcalidrawWrapper = () => {
           }, [] as FileId[]) || [];
 
         if (data.isExternalScene) {
-          loadFilesFromFirebase(
+          loadFilesFromStorage(
             `${FIREBASE_STORAGE_PREFIXES.shareLinkFiles}/${data.id}`,
             data.key,
             fileIds,
@@ -798,6 +803,7 @@ const ExcalidrawWrapper = () => {
         initialData={initialStatePromiseRef.current.promise}
         isCollaborating={isCollaborating}
         onPointerUpdate={collabAPI?.onPointerUpdate}
+        storageBackendUrl={storageBackendUrl}
         UIOptions={{
           canvasActions: {
             toggleTheme: true,
@@ -908,7 +914,11 @@ const ExcalidrawWrapper = () => {
           />
         )}
         {excalidrawAPI && !isCollabDisabled && (
-          <Collab excalidrawAPI={excalidrawAPI} />
+          <Collab 
+            excalidrawAPI={excalidrawAPI} 
+            jwt={jwt}
+            storageBackendUrl={storageBackendUrl}
+          />
         )}
 
         <ShareDialog
@@ -1135,7 +1145,12 @@ const ExcalidrawWrapper = () => {
   );
 };
 
-const ExcalidrawApp = () => {
+interface ExcalidrawAppProps {
+  jwt?: string;
+  storageBackendUrl?: string;
+}
+
+const ExcalidrawApp = (props?: ExcalidrawAppProps) => {
   const isCloudExportWindow =
     window.location.pathname === "/excalidraw-plus-export";
   if (isCloudExportWindow) {
@@ -1145,7 +1160,10 @@ const ExcalidrawApp = () => {
   return (
     <TopErrorBoundary>
       <Provider store={appJotaiStore}>
-        <ExcalidrawWrapper />
+        <ExcalidrawWrapper 
+          jwt={props?.jwt || "Demo JWT"}
+          storageBackendUrl={import.meta.env.VITE_APP_BACKEND_URL}
+        />
       </Provider>
     </TopErrorBoundary>
   );

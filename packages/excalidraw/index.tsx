@@ -52,6 +52,7 @@ const ExcalidrawBase = (props: ExcalidrawProps) => {
     renderEmbeddable,
     aiEnabled,
     showDeprecatedFonts,
+    storageBackendUrl
   } = props;
 
   const canvasActions = props.UIOptions?.canvasActions;
@@ -142,6 +143,7 @@ const ExcalidrawBase = (props: ExcalidrawProps) => {
           renderEmbeddable={renderEmbeddable}
           aiEnabled={aiEnabled !== false}
           showDeprecatedFonts={showDeprecatedFonts}
+          storageBackendUrl={storageBackendUrl}
         >
           {children}
         </App>

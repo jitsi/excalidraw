@@ -10234,7 +10234,13 @@ class App extends React.Component<AppProps, AppState> {
   };
 
   private handleAppOnDrop = async (event: React.DragEvent<HTMLDivElement>) => {
-    if (this.props.UIOptions.canvasActions.disableFileDrop) {
+    // No point in proceeding with the file drag drop if the storageBackendUrl is not
+    // available as we won't be able to store the files 
+
+    if (
+      this.props.UIOptions.canvasActions.disableFileDrop ||
+      !this.props.storageBackendUrl
+    ) {
       return;
     }
     // must be retrieved first, in the same frame

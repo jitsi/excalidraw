@@ -315,11 +315,18 @@ export const ShapesSwitcher = ({
 
   const { TTDDialogTriggerTunnel } = useTunnels();
 
+  const hasStorageBackend = Boolean(app.props.storageBackendUrl);
+
   return (
     <>
       {SHAPES.filter(
       (shape) => allowedShapes.includes(shape.value),
     ).map(({ value, icon, key, numericKey, fillable }, index) => {
+      // Hide image tool option if no storageBackendUrl is provided
+        if (value === "image" && !hasStorageBackend) {
+          return null;
+        }
+
         if (
           UIOptions.tools?.[
             value as Extract<typeof value, keyof AppProps["UIOptions"]["tools"]>

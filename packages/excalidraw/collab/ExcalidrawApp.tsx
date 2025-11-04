@@ -75,7 +75,7 @@ import {
 import { updateStaleImageStatuses } from "../../../excalidraw-app/data/FileManager";
 import { newElementWith } from "@excalidraw/excalidraw/element/mutateElement";
 import { isInitializedImageElement } from "@excalidraw/excalidraw/element/typeChecks";
-import { loadFilesFromFirebase } from "../../../excalidraw-app/data/firebase";
+import { loadFilesFromStorage } from "../../../excalidraw-app/data/storage";
 import {
   LibraryIndexedDBAdapter,
   LibraryLocalStorageMigrationAdapter,
@@ -451,7 +451,7 @@ const ExcalidrawWrapper = (props : ExcalidrawAppProps) => {
           }, [] as FileId[]) || [];
 
         if (data.isExternalScene) {
-          loadFilesFromFirebase(
+          loadFilesFromStorage(
             `${FIREBASE_STORAGE_PREFIXES.shareLinkFiles}/${data.id}`,
             data.key,
             fileIds,
@@ -816,6 +816,7 @@ const ExcalidrawWrapper = (props : ExcalidrawAppProps) => {
     >
       <Excalidraw
         {...props.excalidraw}
+        storageBackendUrl={props.storageBackendUrl}
         excalidrawAPI={excalidrawRefCallback}
         onChange={onChange}
         initialData={initialStatePromiseRef.current.promise}
@@ -907,6 +908,8 @@ const ExcalidrawWrapper = (props : ExcalidrawAppProps) => {
             collabServerUrl={props.collabServerUrl}
             collabDetails={props.collabDetails}
             excalidrawAPI={excalidrawAPI}
+            jwt={props.jwt}
+            storageBackendUrl={props.storageBackendUrl}
             />
         )}
 

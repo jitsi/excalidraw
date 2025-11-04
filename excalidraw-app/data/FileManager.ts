@@ -96,9 +96,7 @@ export class FileManager {
         isInitializedImageElement(element) && files[element.fileId];
 
       if (
-        fileData &&
-        // NOTE if errored during save, won't retry due to this check
-        !this.isFileSavedOrBeingSaved(fileData)
+        fileData
       ) {
         addedFiles.set(element.fileId, files[element.fileId]);
         this.savingFiles.set(element.fileId, this.getFileVersion(fileData));

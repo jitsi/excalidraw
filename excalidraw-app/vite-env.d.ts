@@ -15,6 +15,12 @@ interface ImportMetaEnv {
   VITE_APP_PORTAL_URL: string;
   VITE_APP_AI_BACKEND: string;
 
+  // Storage backend URL for file operations
+  VITE_APP_STORAGE_BACKEND_URL: string;
+
+  // Storage API prefix path
+  VITE_APP_STORAGE_API_PREFIX: string;
+
   VITE_APP_FIREBASE_CONFIG: string;
 
   // whether to disable live reload / HMR. Usuaully what you want to do when

@@ -50,12 +50,13 @@ import {
   getSyncableElements,
 } from "../../../excalidraw-app/data";
 import {
-  isSavedToFirebase,
-  loadFilesFromFirebase,
-  loadFromFirebase,
-  saveFilesToFirebase,
-  saveToFirebase,
-} from "../../../excalidraw-app/data/firebase";
+  isSavedToStorage,
+  loadFilesFromStorage,
+  loadFromStorage,
+  saveFilesToStorage,
+  saveToStorage,
+  initializeBackend
+} from "../../../excalidraw-app/data/storage";
 import {
   importUsernameFromLocalStorage,
   saveUsernameToLocalStorage,
@@ -148,52 +149,50 @@ class Collab extends PureComponent<ExcalidrawCollabProps, CollabState> {
     this.portal = new Portal(this as any);
     this.fileManager = new FileManager({
       getFiles: async (fileIds) => {
-        // const { roomId, roomKey } = this.portal;
-        // if (!roomId || !roomKey) {
-        //   throw new AbortError();
-        // }
+        const { roomId, roomKey } = this.portal;
+        if (!roomId || !roomKey) {
+          throw new AbortError();
+        }
 
-        // return loadFilesFromFirebase(`files/rooms/${roomId}`, roomKey, fileIds);
-      return { loadedFiles: [], erroredFiles: new Map() };
+        return loadFilesFromStorage(`files/rooms/${roomId}`, roomKey, fileIds);
       },
       saveFiles: async ({ addedFiles }) => {
-        // const { roomId, roomKey } = this.portal;
-        // if (!roomId || !roomKey) {
-        //   throw new AbortError();
-        // }
+        const { roomId, roomKey } = this.portal;
+        if (!roomId || !roomKey) {
+          throw new AbortError();
+        }
 
-        // const { savedFiles, erroredFiles } = await saveFilesToFirebase({
-        //   prefix: `${FIREBASE_STORAGE_PREFIXES.collabFiles}/${roomId}`,
-        //   files: await encodeFilesForUpload({
-        //     files: addedFiles,
-        //     encryptionKey: roomKey,
-        //     maxBytes: FILE_UPLOAD_MAX_BYTES,
-        //   }),
-        // });
+        const { savedFiles, erroredFiles } = await saveFilesToStorage({
+          prefix: `${FIREBASE_STORAGE_PREFIXES.collabFiles}/${roomId}`,
+          files: await encodeFilesForUpload({
+            files: addedFiles,
+            encryptionKey: roomKey,
+            maxBytes: FILE_UPLOAD_MAX_BYTES,
+          }),
+        });
 
-        // return {
-        //   savedFiles: savedFiles.reduce(
-        //     (acc: Map<FileId, BinaryFileData>, id) => {
-        //       const fileData = addedFiles.get(id);
-        //       if (fileData) {
-        //         acc.set(id, fileData);
-        //       }
-        //       return acc;
-        //     },
-        //     new Map(),
-        //   ),
-        //   erroredFiles: erroredFiles.reduce(
-        //     (acc: Map<FileId, BinaryFileData>, id) => {
-        //       const fileData = addedFiles.get(id);
-        //       if (fileData) {
-        //         acc.set(id, fileData);
-        //       }
-        //       return acc;
-        //     },
-        //     new Map(),
-        //   ),
-        // };
-        return { savedFiles: new Map(), erroredFiles: new Map() };
+        return {
+          savedFiles: savedFiles.reduce(
+            (acc: Map<FileId, BinaryFileData>, id: FileId) => {
+              const fileData = addedFiles.get(id);
+              if (fileData) {
+                acc.set(id, fileData);
+              }
+              return acc;
+            },
+            new Map(),
+          ),
+          erroredFiles: erroredFiles.reduce(
+            (acc: Map<FileId, BinaryFileData>, id: FileId) => {
+              const fileData = addedFiles.get(id);
+              if (fileData) {
+                acc.set(id, fileData);
+              }
+              return acc;
+            },
+            new Map(),
+          ),
+        };
       },
     });
     this.excalidrawAPI = props.excalidrawAPI;
@@ -314,7 +313,7 @@ class Collab extends PureComponent<ExcalidrawCollabProps, CollabState> {
     syncableElements: readonly SyncableExcalidrawElement[],
   ) => {
     try {
-      const storedElements = await saveToFirebase(
+      const storedElements = await saveToStorage(
         this.portal,
         syncableElements,
         this.excalidrawAPI.getAppState(),
@@ -334,24 +333,24 @@ class Collab extends PureComponent<ExcalidrawCollabProps, CollabState> {
         ? t("errors.collabSaveFailed_sizeExceeded")
         : t("errors.collabSaveFailed");
 
-      if (
-        !this.state.dialogNotifiedErrors[errorMessage] ||
-        !this.isCollaborating()
-      ) {
-        this.setErrorDialog(errorMessage);
-        this.setState({
-          dialogNotifiedErrors: {
-            ...this.state.dialogNotifiedErrors,
-            [errorMessage]: true,
-          },
-        });
-      }
+      // if (
+      //   !this.state.dialogNotifiedErrors[errorMessage] ||
+      //   !this.isCollaborating()
+      // ) {
+      //   this.setErrorDialog(errorMessage);
+      //   this.setState({
+      //     dialogNotifiedErrors: {
+      //       ...this.state.dialogNotifiedErrors,
+      //       [errorMessage]: true,
+      //     },
+      //   });
+      // }
 
-      if (this.isCollaborating()) {
-        this.setErrorIndicator(errorMessage);
-      }
+      // if (this.isCollaborating()) {
+      //   this.setErrorIndicator(errorMessage);
+      // }
 
-      console.error(error);
+      // console.error(error);
     }
   };
 
@@ -495,6 +494,19 @@ class Collab extends PureComponent<ExcalidrawCollabProps, CollabState> {
         APP_NAME,
         getCollaborationLink({ roomId, roomKey }),
       );
+    }
+
+    // Initialize storage backend if storageBackendUrl & jwt are provided
+    const { jwt, storageBackendUrl } = this.props;
+    if (storageBackendUrl || jwt) {
+      try {
+        initializeBackend(storageBackendUrl, jwt);
+      } catch (error: any) {
+        console.error("Failed to initialize storage backend:", error);
+        this.setErrorDialog(`Storage initialization failed: ${error.message}`);
+      }
+    } else {
+      console.log("Storage not initialized missing");
     }
 
     // TODO: `ImportedDataState` type here seems abused
@@ -720,7 +732,7 @@ class Collab extends PureComponent<ExcalidrawCollabProps, CollabState> {
       this.excalidrawAPI.resetScene();
 
       try {
-        const elements = await loadFromFirebase(
+        const elements = await loadFromStorage(
           roomLinkData.roomId,
           roomLinkData.roomKey,
           this.portal.socket,
