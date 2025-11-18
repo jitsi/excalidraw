@@ -18,6 +18,7 @@ import type {
   BinaryFileData,
   BinaryFileMetadata,
   DataURL,
+  IMeetingDetails,
 } from "@excalidraw/excalidraw/types";
 import { FILE_CACHE_MAX_AGE_SEC } from "../app_constants";
 import { decompressData } from "@excalidraw/excalidraw/data/encode";
@@ -32,20 +33,21 @@ import type { Socket } from "socket.io-client";
 import type { RemoteExcalidrawElement } from "@excalidraw/excalidraw/data/reconcile";
 
 const BACKEND_CONFIG = {
-  baseUrl: import.meta.env.VITE_APP_BACKEND_URL || "http://localhost:3000",
-  apiPrefix: import.meta.env.VITE_APP_STORAGE_API_PREFIX || "/v1/excalidraw",
+  baseUrl: import.meta.env.VITE_APP_STORAGE_BACKEND_URL || "http://localhost:3000",
+  apiPrefix: import.meta.env.VITE_APP_STORAGE_API_PREFIX || "/v1/documents",
 };
 
 let backendApi: { baseUrl: string; apiPrefix: string } | null = null;
-let storedJwt: string = ""; // Stores JWT globally for all API calls
+let meetingDetailsCache: IMeetingDetails | null = null; // Cache for meeting details
 
-// Initialize backend configuration with storageBackendUrl & jwt
-export const initializeBackend = (storageBackendUrl?: string, jwt?: string) => {
+
+// Initialize backend configuration with storageBackendUrl & meetingDetails (Token comes from meetingDetails)
+export const initializeBackend = (storageBackendUrl?: string, meetingDetails?: IMeetingDetails) => {
   backendApi = {
     baseUrl: storageBackendUrl || BACKEND_CONFIG.baseUrl,
     apiPrefix: BACKEND_CONFIG.apiPrefix,
   };
-  storedJwt = jwt || "";
+  meetingDetailsCache = meetingDetails || null;
 };
 
 const _getBackendApi = () => {
@@ -58,10 +60,13 @@ const _getBackendApi = () => {
   return backendApi;
 };
 
-const _getJwt = () => {
-  return storedJwt;
+const _getToken = () => {
+  return meetingDetailsCache?.token;
 };
 
+const _getMeetingDetails = (): IMeetingDetails | null => {
+  return meetingDetailsCache;
+};
 
 export const loadStorage = async () => {
   return _getBackendApi();
@@ -72,14 +77,14 @@ const apiCall = async (endpoint: string, options: RequestInit = {}) => {
   const api = _getBackendApi();
   const url = `${api.baseUrl}${api.apiPrefix}${endpoint}`;
   
-  // Adding jwt to headers if available
+  // Adding token to headers if available
   const headers: Record<string, string> = {
     ...options.headers as Record<string, string>,
   };
   
-  const jwt = _getJwt();
-  if (jwt) {
-    headers['Authorization'] = `Bearer ${jwt}`;
+  const token = _getToken();
+  if (token) {
+    headers['Authorization'] = `Bearer ${token}`;
   }
     
   const response = await fetch(url, {
@@ -95,43 +100,79 @@ const apiCall = async (endpoint: string, options: RequestInit = {}) => {
 };
 
 // Helper function to upload files using Multer
-const uploadFilesWithMulter = async (prefix: string, files: { id: FileId; buffer: Uint8Array }[]) => {
-  // Early return if no files to upload
+const uploadFilesWithMulter = async (prefix: string, files: { id: FileId; buffer: Uint8Array }[]): Promise<{ savedFiles: FileId[]; erroredFiles: FileId[] }> => {
   if (!files || files.length === 0) {
     return { savedFiles: [], erroredFiles: [] };
   }
 
   const api = _getBackendApi();
-  const url = `${api.baseUrl}${api.apiPrefix}/files/upload`;
+  const meetingDetails = _getMeetingDetails();
+  const baseUrl = `${api.baseUrl}${api.apiPrefix}`;
   
-  const formData = new FormData();
-  formData.append('prefix', prefix);
-  
-  files.forEach(({ id, buffer }) => {
-    const blob = new Blob([new Uint8Array(buffer)], { type: 'application/octet-stream' });
-    formData.append('files', blob, id);
-  });
-
-  const headers: Record<string, string> = {};
-  const jwt = _getJwt();
-  if (jwt) {
-    headers['Authorization'] = `Bearer ${jwt}`;
-  }
-  
-  const response = await fetch(url, {
-    method: 'POST',
-    headers,
-    body: formData,
-  });
-
-  if (!response.ok) {
-    throw new Error(`Upload failed: ${response.status} ${response.statusText}`);
+  if (!meetingDetails?.sessionId || !meetingDetails?.roomJid) {
+    throw new Error('Missing required meeting details (sessionId or roomJid)');
   }
 
-  return response.json();
+  const savedFiles: FileId[] = [];
+  const erroredFiles: FileId[] = [];
+
+  // Uploading sequentially
+  for (const { id, buffer } of files) {
+    try {
+      const url = `${baseUrl}/sessions/${meetingDetails.sessionId}/files`;
+
+      const fileMetaData = {
+        conferenceFullName: meetingDetails.roomJid,
+        fileId: id,
+        fileSize: buffer.byteLength,
+        timestamp: Date.now(),
+        prefix
+      };
+
+      const formData = new FormData();
+      formData.append('metadata', JSON.stringify(fileMetaData));
+      const blob = new Blob([new Uint8Array(buffer)], { type: 'application/octet-stream' });
+      formData.append('file', blob, id);
+
+      const headers: Record<string, string> = {};
+      const token = _getToken();
+      if (token) {
+        headers['Authorization'] = `Bearer ${token}`;
+      }
+
+      const response = await fetch(url, {
+        method: 'POST',
+        headers,
+        body: formData,
+      });
+
+      if (!response.ok) {
+        const text = await response.text().catch(() => '');
+        console.error(`Upload failed for file ${id}: ${response.status} ${response.statusText} ${text}`);
+        erroredFiles.push(id);
+        continue;
+      }
+
+      const result = await response.json().catch(() => null);
+      if (!result) {
+        console.error(`Invalid response for file ${id}`);
+        erroredFiles.push(id);
+        continue;
+      }
+
+      savedFiles.push(id);
+    } catch (error) {
+      console.error(`Error uploading file ${id}:`, error);
+      erroredFiles.push(id);
+    }
+  }
+
+  return { savedFiles, erroredFiles };
 };
 
-// Helper function to download files 
+
+
+  // Helper function to download files
 const downloadFilesFromBackend = async (prefix: string, fileIds: readonly FileId[]) => {
   
   // Early return if no files to download
@@ -141,20 +182,25 @@ const downloadFilesFromBackend = async (prefix: string, fileIds: readonly FileId
 
   const api = _getBackendApi();
   const baseUrl = `${api.baseUrl}${api.apiPrefix}`;
+  const meetingDetails = _getMeetingDetails();
   
+  if (!meetingDetails?.sessionId || !meetingDetails?.roomJid) {
+    throw new Error('Missing required meeting details (sessionId or roomJid)');
+  }
   const loadedFiles: Array<{ id: FileId; buffer: Uint8Array }> = [];
   const erroredFiles: FileId[] = [];
 
   const headers: Record<string, string> = {};
-  const jwt = _getJwt();
-  if (jwt) {
-    headers['Authorization'] = `Bearer ${jwt}`;
+  const token = _getToken();
+  if (token) {
+    headers['Authorization'] = `Bearer ${token}`;
   }
 
   await Promise.all(
     [...new Set(fileIds)].map(async (id) => {
       try {
-        const url = `${baseUrl}/files/download/${prefix}/${id}`;        
+        const encodedFileId = encodeURIComponent(`${prefix}/${id}`);
+        const url = `${baseUrl}/sessions/${meetingDetails.sessionId}/files/${encodedFileId}`;
         const response = await fetch(url, {
           method: 'GET',
           headers,
@@ -311,6 +357,7 @@ const createStorageSceneDocument = async (
 };
 
 const getBackendDocument = async (roomId: string): Promise<StoredScene | null> => {
+  return null;
   try {
     const response = await apiCall(`/scenes/${roomId}`, {
       method: "GET",
@@ -333,7 +380,8 @@ const getBackendDocument = async (roomId: string): Promise<StoredScene | null> =
 };
 
 const setBackendDocument = async (roomId: string, document: StoredScene): Promise<void> => {
-
+  
+  return ;
   const serializedDoc = {
     roomId,
     sceneVersion: document.sceneVersion,

@@ -497,10 +497,16 @@ class Collab extends PureComponent<ExcalidrawCollabProps, CollabState> {
     }
 
     // Initialize storage backend if storageBackendUrl & jwt are provided
-    const { jwt, storageBackendUrl } = this.props;
-    if (storageBackendUrl || jwt) {
+    const { storageBackendUrl, meetingDetails } = this.props;
+    if (storageBackendUrl && meetingDetails?.sessionId && meetingDetails.token) {
       try {
-        initializeBackend(storageBackendUrl, jwt);
+        if (!meetingDetails.sessionId) {
+          console.warn("Missing sessionId in whiteboard");
+        }
+        if (!meetingDetails.token) {
+          console.warn("Missing token in whiteboard");
+        }
+        initializeBackend(storageBackendUrl, meetingDetails);
       } catch (error: any) {
         console.error("Failed to initialize storage backend:", error);
         this.setErrorDialog(`Storage initialization failed: ${error.message}`);

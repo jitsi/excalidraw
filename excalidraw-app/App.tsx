@@ -32,6 +32,7 @@ import type {
   BinaryFiles,
   ExcalidrawInitialDataState,
   UIAppState,
+  IMeetingDetails,
 } from "@excalidraw/excalidraw/types";
 import type { ResolvablePromise } from "@excalidraw/excalidraw/utils";
 import {
@@ -329,11 +330,11 @@ const initializeScene = async (opts: {
 };
 
 interface ExcalidrawWrapperProps {
-  jwt?: string;
   storageBackendUrl?: string;
+  meetingDetails: IMeetingDetails;
 }
 
-const ExcalidrawWrapper = ({ jwt, storageBackendUrl }: ExcalidrawWrapperProps) => {
+const ExcalidrawWrapper = ({ storageBackendUrl , meetingDetails }: ExcalidrawWrapperProps) => {
   const [errorMessage, setErrorMessage] = useState("");
   const isCollabDisabled = isRunningInIframe();
 
@@ -916,8 +917,8 @@ const ExcalidrawWrapper = ({ jwt, storageBackendUrl }: ExcalidrawWrapperProps) =
         {excalidrawAPI && !isCollabDisabled && (
           <Collab 
             excalidrawAPI={excalidrawAPI} 
-            jwt={jwt}
             storageBackendUrl={storageBackendUrl}
+            meetingDetails={meetingDetails}
           />
         )}
 
@@ -1146,8 +1147,17 @@ const ExcalidrawWrapper = ({ jwt, storageBackendUrl }: ExcalidrawWrapperProps) =
 };
 
 interface ExcalidrawAppProps {
-  jwt?: string;
   storageBackendUrl?: string;
+  meetingDetails?: IMeetingDetails;
+}
+
+
+const meetingDetails = {
+  sessionId: "example-session-id",
+  roomJid: "example-room-jid",
+  jwt: "example-jwt",
+  jid: "example-jid",
+  token: "token"
 }
 
 const ExcalidrawApp = (props?: ExcalidrawAppProps) => {
@@ -1161,8 +1171,8 @@ const ExcalidrawApp = (props?: ExcalidrawAppProps) => {
     <TopErrorBoundary>
       <Provider store={appJotaiStore}>
         <ExcalidrawWrapper 
-          jwt={props?.jwt || "Demo JWT"}
-          storageBackendUrl={import.meta.env.VITE_APP_BACKEND_URL}
+          storageBackendUrl={import.meta.env.VITE_APP_STORAGE_BACKEND_URL}
+          meetingDetails={meetingDetails}
         />
       </Provider>
     </TopErrorBoundary>

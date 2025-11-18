@@ -591,8 +591,8 @@ export interface ExcalidrawCollabProps {
   collabDetails?: { roomId: string; roomKey: string };
   excalidrawAPI: ExcalidrawImperativeAPI;
   useTestEnv?: boolean;
-  jwt?: string;
   storageBackendUrl?: string;
+  meetingDetails?: IMeetingDetails;
 }
 
 export interface ExcalidrawAppProps {
@@ -601,8 +601,16 @@ export interface ExcalidrawAppProps {
   excalidraw: ExcalidrawProps;
   getExcalidrawAPI?: Function;
   getCollabAPI?: Function;
-  jwt?: string;
   storageBackendUrl?: string;
+  meetingDetails?: IMeetingDetails;
+}
+
+export interface IMeetingDetails {
+  sessionId: string;
+  roomJid: string;
+  jwt: string;
+  jid: string;
+  token?: string;
 }
 
 export type SceneData = {

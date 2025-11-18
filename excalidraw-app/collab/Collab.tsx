@@ -6,6 +6,7 @@ import type {
   SocketId,
   Collaborator,
   Gesture,
+  IMeetingDetails,
 } from "@excalidraw/excalidraw/types";
 import { ErrorDialog } from "@excalidraw/excalidraw/components/ErrorDialog";
 import { APP_NAME, ENV, EVENT } from "@excalidraw/excalidraw/constants";
@@ -123,8 +124,8 @@ export interface CollabAPI {
 
 interface CollabProps {
   excalidrawAPI: ExcalidrawImperativeAPI;
-  jwt?: string;
   storageBackendUrl?: string;
+  meetingDetails: IMeetingDetails;
 }
 
 class Collab extends PureComponent<CollabProps, CollabState> {
@@ -487,10 +488,11 @@ class Collab extends PureComponent<CollabProps, CollabState> {
     }
 
     // Initializing storage backend if storageBackendUrl & jwt are provided
-    const { jwt, storageBackendUrl } = this.props;
-    if (storageBackendUrl && jwt) {
+    const { storageBackendUrl , meetingDetails } = this.props;
+    // Session Id is required to initialize the storage backend
+    if (storageBackendUrl && meetingDetails?.sessionId && meetingDetails.token) {
       try {
-        initializeBackend(storageBackendUrl, jwt);
+        initializeBackend(storageBackendUrl, meetingDetails);
       } catch (error: any) {
         console.error("Failed to initialize storage backend:", error);
         this.setErrorDialog(`Storage initialization failed: ${error.message}`);
