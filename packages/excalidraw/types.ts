@@ -609,8 +609,6 @@ export interface IMeetingDetails {
   sessionId: string;
   roomJid: string;
   jwt: string;
-  jid: string;
-  token?: string;
 }
 
 export type SceneData = {

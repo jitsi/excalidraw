@@ -41,7 +41,7 @@ let backendApi: { baseUrl: string; apiPrefix: string } | null = null;
 let meetingDetailsCache: IMeetingDetails | null = null; // Cache for meeting details
 
 
-// Initialize backend configuration with storageBackendUrl & meetingDetails (Token comes from meetingDetails)
+// Initialize backend configuration with storageBackendUrl & meetingDetails
 export const initializeBackend = (storageBackendUrl?: string, meetingDetails?: IMeetingDetails) => {
   backendApi = {
     baseUrl: storageBackendUrl || BACKEND_CONFIG.baseUrl,
@@ -60,8 +60,8 @@ const _getBackendApi = () => {
   return backendApi;
 };
 
-const _getToken = () => {
-  return meetingDetailsCache?.token;
+const _getJwt = () => {
+  return meetingDetailsCache?.jwt;
 };
 
 const _getMeetingDetails = (): IMeetingDetails | null => {
@@ -77,14 +77,14 @@ const apiCall = async (endpoint: string, options: RequestInit = {}) => {
   const api = _getBackendApi();
   const url = `${api.baseUrl}${api.apiPrefix}${endpoint}`;
   
-  // Adding token to headers if available
+  // Adding jwt to headers if available
   const headers: Record<string, string> = {
     ...options.headers as Record<string, string>,
   };
   
-  const token = _getToken();
-  if (token) {
-    headers['Authorization'] = `Bearer ${token}`;
+  const jwt = _getJwt();
+  if (jwt) {
+    headers['Authorization'] = `Bearer ${jwt}`;
   }
     
   const response = await fetch(url, {
@@ -135,9 +135,9 @@ const uploadFilesWithMulter = async (prefix: string, files: { id: FileId; buffer
       formData.append('file', blob, id);
 
       const headers: Record<string, string> = {};
-      const token = _getToken();
-      if (token) {
-        headers['Authorization'] = `Bearer ${token}`;
+      const jwt = _getJwt();
+      if (jwt) {
+        headers['Authorization'] = `Bearer ${jwt}`;
       }
 
       const response = await fetch(url, {
@@ -174,7 +174,7 @@ const uploadFilesWithMulter = async (prefix: string, files: { id: FileId; buffer
 
   // Helper function to download files
 const downloadFilesFromBackend = async (prefix: string, fileIds: readonly FileId[]) => {
-  
+
   // Early return if no files to download
   if (!fileIds || fileIds.length === 0) {
     return { loadedFiles: [], erroredFiles: [] };
@@ -191,16 +191,16 @@ const downloadFilesFromBackend = async (prefix: string, fileIds: readonly FileId
   const erroredFiles: FileId[] = [];
 
   const headers: Record<string, string> = {};
-  const token = _getToken();
-  if (token) {
-    headers['Authorization'] = `Bearer ${token}`;
+  const jwt = _getJwt();
+  if (jwt) {
+    headers['Authorization'] = `Bearer ${jwt}`;
   }
 
   await Promise.all(
     [...new Set(fileIds)].map(async (id) => {
       try {
         const encodedFileId = encodeURIComponent(`${prefix}/${id}`);
-        const url = `${baseUrl}/sessions/${meetingDetails.sessionId}/files/${encodedFileId}`;
+        const url = `${baseUrl}/download/${encodedFileId}`;
         const response = await fetch(url, {
           method: 'GET',
           headers,
