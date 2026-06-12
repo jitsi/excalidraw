@@ -493,13 +493,13 @@ class Collab extends PureComponent<ExcalidrawCollabProps, CollabState> {
 
     // Initialize storage backend if storageBackendUrl & jwt are provided
     const { storageBackendUrl, meetingDetails } = this.props;
-    if (storageBackendUrl && meetingDetails?.sessionId && meetingDetails.token) {
+    if (storageBackendUrl && meetingDetails?.sessionId && meetingDetails.jwt) {
       try {
         if (!meetingDetails.sessionId) {
           console.warn("Missing sessionId in whiteboard");
         }
-        if (!meetingDetails.token) {
-          console.warn("Missing token in whiteboard");
+        if (!meetingDetails.jwt) {
+          console.warn("Missing jwt in whiteboard");
         }
         initializeBackend(storageBackendUrl, meetingDetails);
       } catch (error: any) {

@@ -490,7 +490,7 @@ class Collab extends PureComponent<CollabProps, CollabState> {
     // Initializing storage backend if storageBackendUrl & jwt are provided
     const { storageBackendUrl , meetingDetails } = this.props;
     // Session Id is required to initialize the storage backend
-    if (storageBackendUrl && meetingDetails?.sessionId && meetingDetails.token) {
+    if (storageBackendUrl && meetingDetails?.sessionId && meetingDetails.jwt) {
       try {
         initializeBackend(storageBackendUrl, meetingDetails);
       } catch (error: any) {

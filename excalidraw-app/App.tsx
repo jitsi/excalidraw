@@ -1155,9 +1155,7 @@ interface ExcalidrawAppProps {
 const meetingDetails = {
   sessionId: "example-session-id",
   roomJid: "example-room-jid",
-  jwt: "example-jwt",
-  jid: "example-jid",
-  token: "token"
+  jwt: "example-jwt"
 }
 
 const ExcalidrawApp = (props?: ExcalidrawAppProps) => {
